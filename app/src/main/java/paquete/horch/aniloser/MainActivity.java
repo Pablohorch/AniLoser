@@ -248,7 +248,30 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                     image = BitmapFactory.decodeStream(new BufferedInputStream(getContentResolver().openInputStream(rutaImagen)));
                 } catch (FileNotFoundException e) { }
             }
+
         }
         imgAdd.setImageBitmap(image);
+
     }
 }
+
+  class animal{
+
+        String especie;
+        String raza;
+        String edad;
+        String descripcion;
+        String salud;
+        String bitmap;
+        String siz;
+
+        public animal(String Aespecie,String Araza,String Asalud,String Aedad,String Adescripcion,String Asize,String Abitmap){
+            especie=Aespecie;
+            raza=Araza;
+            edad=Aedad;
+            descripcion=Adescripcion;
+            salud=Asalud;
+            bitmap=Abitmap;
+            siz=Asize;
+        }
+  }
