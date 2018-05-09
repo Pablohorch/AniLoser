@@ -8,41 +8,209 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <LinearLayout
-        android:id="@+id/linearVertical"
+    <ScrollView
+        android:id="@+id/scrollAdd"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/txtAddAdvertencis"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="15dp"
-            android:text="En esta pantalla podras añadir un nuevo animal en cualquiero modo. Modo Busqueda (Ese animal se ha perdido) o modo Encontrado (Ese animal ha sido encontrado)" />
+        android:layout_height="wrap_content">
 
         <LinearLayout
+            android:id="@+id/linearVertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="15dp"
-            android:orientation="horizontal"
-            tools:layout_editor_absoluteX="8dp"
-            tools:layout_editor_absoluteY="106dp">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
 
             <TextView
-                android:id="@+id/lblAddEspecies"
+                android:id="@+id/txtAddAdvertencis"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Especie" />
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:text="@string/txtAdvAdd" />
 
-            <Spinner
-                android:id="@+id/spiEspecie"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_margin="15dp"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="106dp">
+
+                <TextView
+                    android:id="@+id/lblAddEspecies"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Especie" />
+
+                <Spinner
+                    android:id="@+id/spiEspecie"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="106dp">
+
+                <TextView
+                    android:id="@+id/lblAddRaza"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Raza" />
+
+                <Spinner
+                    android:id="@+id/spiRaza"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="106dp">
+
+                <TextView
+                    android:id="@+id/lblAddSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Tamaño" />
+
+                <Spinner
+                    android:id="@+id/spiSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="106dp">
+
+                <TextView
+                    android:id="@+id/lblAddEdad"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Edad" />
+
+                <Spinner
+                    android:id="@+id/spiEdad"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="106dp">
+
+
+                <TextView
+                    android:id="@+id/lblAddDescrip"
+                    android:layout_width="152dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Descripción"
+                    android:textAlignment="gravity" />
+
+                <MultiAutoCompleteTextView
+                    android:id="@+id/multiAutoCompleteTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="106dp">
+
+                <TextView
+                    android:id="@+id/lblAddRango"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Estado de Salud" />
+
+                <SeekBar
+                    android:id="@+id/rango"
+                    style="@style/Widget.AppCompat.SeekBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:max="10"
+                    android:progress="3" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="106dp">
+
+                <TextView
+                    android:id="@+id/lblAddFoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="FotoGrafia"
+                    android:textAlignment="gravity" />
+
+                <Button
+                    android:id="@+id/btnAddFotoGaleria"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:onClick="clicfoto"
+                    android:text="Examinar Fotos" />
+
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/imgAnimalAdd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                app:srcCompat="@drawable/ic_menu_camera"
+                tools:layout_editor_absoluteX="112dp"
+                tools:layout_editor_absoluteY="309dp" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp" />
+
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
@@ -55,5 +223,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/navigation" />
+
+
 
 </android.support.constraint.ConstraintLayout>

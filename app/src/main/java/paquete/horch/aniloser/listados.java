@@ -3,7 +3,7 @@ package paquete.horch.aniloser;
 public class listados {
     static String[] especies={"Perro","Gato","Pajaro Domestico","Caballo","Huron","Serpiente","Camaleon","Tortuga"};
 
-    String[] razaPerros={"No lo se","Mestizo (chucho)","YorkShire","Pomerania","Caniche","Pastor Aleman","Labrador","Rottweiler","Bulldog","Gran Danes","Doberman",
+    static String[] razaPerros={"No lo se","Mestizo (chucho)","YorkShire","Pomerania","Caniche","Pastor Aleman","Labrador","Rottweiler","Bulldog","Gran Danes","Doberman",
             "Perro Salchicha","Husky Siberiano","Boxer","Chihuahua","Pug (nariz acahatada)","Chow Chow","Mastin Ingles","Border Collie","Vizsla","Shih Tzu",
             "Bichon Maltes","Pastro Belga","PitBull","Galgo Ingles","Akita","Pastor Ovejero","San Bernado","Terranova","BobTail","Bodegero","BullDog France",
             "Bichon Frise","Bull Terrier","Staffordshire bull terrier"};
@@ -13,5 +13,7 @@ public class listados {
     String[] razaPajaros={"Loros","Canarios","Golondriana","Inseparable","Diamante Mandarin","Periquito"};
 
     String [] serpiente={"Cascabel",""};
+
+    static String[] size={"Bebe prematuro","Bebe Recien Nacido","Pequeño","Mediano","Grande","Muy Grande"};
 
 }
