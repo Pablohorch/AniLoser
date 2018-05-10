@@ -11,6 +11,8 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Range;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -27,9 +29,12 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -111,6 +116,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         imgAdd=(ImageView) findViewById(R.id.imgAnimalAdd);
         rango=(SeekBar) findViewById(R.id.rango);
+
+        RecyclerView listadoRaza=(RecyclerView) findViewById(R.id.listadoAddRazas);
+
+
         rango.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -128,6 +137,18 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
             }
         });
+
+        ArrayList<especie> especies=new ArrayList<especie>();
+
+        for (int x=0;x<listados.especies.length;x++){
+            especies.add(new especie(listados.especies[x],listados.especieURL[x]));
+            }
+        listadoRaza.setLayoutManager(new LinearLayoutManager(this));
+        adaptador adap=new adaptador(especies);
+        listadoRaza.setAdapter(adap);
+
+
+
 
     }
 
@@ -275,3 +296,17 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
             siz=Asize;
         }
   }
+
+class especie{
+
+    String nombre;
+    String url;
+
+
+    public especie(String Aespecie,String Araza){
+        nombre=Aespecie;
+        url=Araza;
+     }
+}
+
+
