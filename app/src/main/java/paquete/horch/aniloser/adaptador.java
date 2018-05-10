@@ -24,10 +24,13 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
-public class adaptador extends RecyclerView.Adapter<adaptador.ViewHolder>{
+public class adaptador extends RecyclerView.Adapter<adaptador.ViewHolder> implements View.OnClickListener{
 
     Context context;
     ArrayList<especie> espe;
+
+    private View.OnClickListener listener;
+
     Handler comunicador=new Handler();
 
     public adaptador( ArrayList<especie> especie){
@@ -39,7 +42,7 @@ public class adaptador extends RecyclerView.Adapter<adaptador.ViewHolder>{
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.tarjetaslistado,parent,false);
-
+        v.setOnClickListener(this);
         return new ViewHolder(v);
     }
 
@@ -71,6 +74,17 @@ public class adaptador extends RecyclerView.Adapter<adaptador.ViewHolder>{
     @Override
     public int getItemCount() {
         return espe.size();
+    }
+
+    public void setOnItemClickListener(View.OnClickListener listener){
+        this.listener=listener;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (listener!=null){
+            listener.onClick(v);
+        }
     }
 
 

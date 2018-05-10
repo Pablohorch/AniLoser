@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Range;
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         imgAdd=(ImageView) findViewById(R.id.imgAnimalAdd);
         rango=(SeekBar) findViewById(R.id.rango);
 
-        RecyclerView listadoRaza=(RecyclerView) findViewById(R.id.listadoAddRazas);
+        final RecyclerView listadoRaza=(RecyclerView) findViewById(R.id.listadoAddRazas);
 
 
         rango.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -138,13 +139,44 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
             }
         });
 
-        ArrayList<especie> especies=new ArrayList<especie>();
+        final ArrayList<especie> especies=new ArrayList<especie>();
 
         for (int x=0;x<listados.especies.length;x++){
             especies.add(new especie(listados.especies[x],listados.especieURL[x]));
             }
-        listadoRaza.setLayoutManager(new LinearLayoutManager(this));
-        adaptador adap=new adaptador(especies);
+        listadoRaza.setLayoutManager(new GridLayoutManager(this,2));
+        final adaptador adap=new adaptador(especies);
+
+
+        setTitle(""+listados.razaPerros.length+"-"+listados.razaPerroURL.length);
+
+        adap.setOnItemClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String nombre=especies.get(listadoRaza.getChildAdapterPosition(v)).nombre;
+                setTitle(nombre);
+                if (nombre.equals("Perro")){
+                    final ArrayList<especie> perros=new ArrayList<especie>();
+
+                    for (int x=0;x<listados.razaPerros.length;x++){
+                        perros.add(new especie(listados.razaPerros[x],listados.razaPerroURL[x]));
+                    }
+                    final adaptador adapP=new adaptador(perros);
+                    listadoRaza.setAdapter(adapP);
+
+                    adapP.setOnItemClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String nombre=perros.get(listadoRaza.getChildAdapterPosition(v)).nombre;
+                            setTitle(nombre);
+                        }
+                    });
+                }
+
+
+            }
+        });
+
         listadoRaza.setAdapter(adap);
 
 
