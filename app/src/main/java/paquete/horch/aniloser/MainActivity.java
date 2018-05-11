@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -39,14 +40,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener {
 
-    Spinner spiEspecies;
-    Spinner spiRaza;
-    Spinner spiSize;
-    Spinner spiEdad;
 
-    Button btnAddFotoGaleria;
-    ImageView imgAdd;
-    SeekBar rango;
+    public static final int CAPTURE_IMAGE_FULLSIZE_ACTIVITY_REQUEST_CODE = 1777;
+
+    Button btnAddSeguimientoEspecie;
+    Button btnAddSeguimientoRaza;
+    Button btnAddSeguimientoFoto;
+    Button btnAddSeguimientoOtros;
 
 
     //--------------------Variable del animal
@@ -82,22 +82,11 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         inicializador();
 
-        spiEspecies.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.preference_category, listados.especies));
 
         String[] arrayEdad=new String[25];
         for (int x=0;x<arrayEdad.length;x++){
             arrayEdad[x]=x+"";
         }
-
-        spiEdad.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.preference_category, arrayEdad));
-
-        spiRaza.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.preference_category, listados.razaPerros));
-
-        spiSize.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.preference_category, listados.size));
 
 
 
@@ -110,79 +99,29 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         //Añadir
 
-        spiEspecies=(Spinner) findViewById(R.id.spiEspecie);
-        spiEdad=(Spinner) findViewById(R.id.spiEdad);
-        spiRaza=(Spinner) findViewById(R.id.spiRaza);
-        spiSize=(Spinner) findViewById(R.id.spiSize);
+        btnAddSeguimientoEspecie=(Button) findViewById(R.id.btnAddSeguimientoEspecie);
+        btnAddSeguimientoRaza=(Button) findViewById(R.id.btnAddSeguimientoRaza);
+        btnAddSeguimientoFoto=(Button) findViewById(R.id.btnAddSeguimientoFoto);
+        btnAddSeguimientoOtros=(Button) findViewById(R.id.btnAddSeguimientoOtros);
 
-        imgAdd=(ImageView) findViewById(R.id.imgAnimalAdd);
-        rango=(SeekBar) findViewById(R.id.rango);
 
+//--------------------------------------------------------------------------------------------
         final RecyclerView listadoRaza=(RecyclerView) findViewById(R.id.listadoAddRazas);
 
 
-        rango.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                setTitle(progress+" ");
 
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
 
         final ArrayList<especie> especies=new ArrayList<especie>();
 
         for (int x=0;x<listados.especies.length;x++){
             especies.add(new especie(listados.especies[x],listados.especieURL[x]));
             }
+
+
         listadoRaza.setLayoutManager(new GridLayoutManager(this,2));
-        final adaptador adap=new adaptador(especies);
-
-
-        setTitle(""+listados.razaPerros.length+"-"+listados.razaPerroURL.length);
-
-        adap.setOnItemClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String nombre=especies.get(listadoRaza.getChildAdapterPosition(v)).nombre;
-                setTitle(nombre);
-                if (nombre.equals("Perro")){
-                    final ArrayList<especie> perros=new ArrayList<especie>();
-
-                    for (int x=0;x<listados.razaPerros.length;x++){
-                        perros.add(new especie(listados.razaPerros[x],listados.razaPerroURL[x]));
-                    }
-                    final adaptador adapP=new adaptador(perros);
-                    listadoRaza.setAdapter(adapP);
-
-                    adapP.setOnItemClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            String nombre=perros.get(listadoRaza.getChildAdapterPosition(v)).nombre;
-                            setTitle(nombre);
-                        }
-                    });
-                }
-
-
-            }
-        });
-
+        adaptador adap=clickDeListado(new adaptador(especies),listadoRaza,especies);
         listadoRaza.setAdapter(adap);
-
-
-
-
-    }
+}
 
     @Override
     public void onBackPressed() {
@@ -237,54 +176,22 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         return true;
     }
 
-
     //Funcion de la barra de navegacion inferior
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener  = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            ScrollView add=(ScrollView) findViewById(R.id.scrollAdd);
-            switch (item.getItemId()) {
+           switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    add.setVisibility(View.GONE);
-
-                    return true;
+                     return true;
                 case R.id.navigation_dashboard:
-                 add.setVisibility(View.GONE);
                    return true;
                 case R.id.navigation_notifications:
-                    add.setVisibility(View.VISIBLE);
-
-                    return true;
+                   return true;
             }
             return false;
         }
     };
-
-    public void clicfoto(View v){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("¿Cómo quiere obtener la imagen?")
-                .setPositiveButton("Cámara", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        code = DESDE_CAMARA;
-                        startActivityForResult(intent, code);
-                    }
-                })
-                .setNegativeButton("Galería", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-                        code = DESDE_GALERIA;
-                        startActivityForResult(intent, code);
-                    }
-                });
-        Dialog dialog = builder.create();
-        dialog.show();
-
-
-    }
 
     // Para obtener la imagen sea de galería o de cámara
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -303,12 +210,64 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
             }
 
         }
-        imgAdd.setImageBitmap(image);
+        ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(image);
+    }
 
+    public adaptador clickDeListado(adaptador AV, final RecyclerView listaAdd, Object x){
+        final Object y=x;
+     AV.setOnItemClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View v) {
+             ArrayList<especie> a=(ArrayList) y;
+             String nombre=a.get(listaAdd.getChildAdapterPosition(v)).nombre;
+
+             Boolean especieCompleta=btnAddSeguimientoEspecie.isEnabled();
+             Boolean razaCompleta=btnAddSeguimientoRaza.isEnabled();
+
+
+             if (especieCompleta==false){
+                    btnAddSeguimientoEspecie.setText(nombre);
+                    btnAddSeguimientoEspecie.setEnabled(true);
+
+                 final ArrayList<especie> perros=new ArrayList<especie>();
+
+                 for (int x=0;x<listados.razaPerros.length;x++){
+                     perros.add(new especie(listados.razaPerros[x],listados.razaPerroURL[x]));
+                 }
+                 final adaptador adapP=new adaptador(perros);
+                 listaAdd.setAdapter(adapP);
+                 adapP.setOnItemClickListener(new View.OnClickListener() {
+                     @Override
+                     public void onClick(View v) {
+                         clickDeListado(adapP,listaAdd,perros);
+                     }
+                 });
+
+             }else if(!razaCompleta){
+                    listaAdd.setVisibility(View.GONE);
+                    btnAddSeguimientoRaza.setText(nombre);
+                    btnAddSeguimientoRaza.setEnabled(true);
+             }
+         }
+     });
+     return AV;
+    }
+    public void clickFotos(View v){
+        Button a=(Button) v;
+        if (a.getText().equals("Camara")){
+            intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            code = DESDE_CAMARA;
+            startActivityForResult(intent, code);
+        }else{
+            intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+            code = DESDE_GALERIA;
+            startActivityForResult(intent, code);
+        }
     }
 }
 
-  class animal{
+
+class animal{
 
         String especie;
         String raza;

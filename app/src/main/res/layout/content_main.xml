@@ -11,7 +11,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="143dp"
+        tools:layout_editor_absoluteY="271dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,225 +21,108 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/btnAddSeguimientoEspecie"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:background="@android:color/holo_orange_light"
+                android:enabled="false"
+                android:text="Especie" />
+
+            <Button
+                android:id="@+id/btnAddSeguimientoRaza"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/holo_orange_light"
+                android:enabled="false"
+                android:text="Raza" />
+
+            <Button
+                android:id="@+id/btnAddSeguimientoFoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/holo_orange_light"
+                android:enabled="false"
+                android:text="Foto" />
+
+            <Button
+                android:id="@+id/btnAddSeguimientoOtros"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/holo_orange_light"
+                android:enabled="false"
+                android:text="Otros" />
         </LinearLayout>
+
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/listadoAddRazas"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <ScrollView
-        android:id="@+id/scrollAdd"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:id="@+id/linearVertical"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:visibility="gone">
 
+        </android.support.v7.widget.RecyclerView>
 
-            <TextView
-                android:id="@+id/txtAddAdvertencis"
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:text="@string/txtAdvAdd" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:orientation="horizontal"
-                tools:layout_editor_absoluteX="8dp"
-                tools:layout_editor_absoluteY="106dp">
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/lblAddEspecies"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Especie" />
-
-                <Spinner
-                    android:id="@+id/spiEspecie"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:orientation="horizontal"
-                tools:layout_editor_absoluteX="8dp"
-                tools:layout_editor_absoluteY="106dp">
-
-                <TextView
-                    android:id="@+id/lblAddRaza"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Raza" />
-
-                <Spinner
-                    android:id="@+id/spiRaza"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:orientation="horizontal"
-                tools:layout_editor_absoluteX="8dp"
-                tools:layout_editor_absoluteY="106dp">
-
-                <TextView
-                    android:id="@+id/lblAddSize"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Tamaño" />
-
-                <Spinner
-                    android:id="@+id/spiSize"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:orientation="horizontal"
-                tools:layout_editor_absoluteX="8dp"
-                tools:layout_editor_absoluteY="106dp">
-
-                <TextView
-                    android:id="@+id/lblAddEdad"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Edad" />
-
-                <Spinner
-                    android:id="@+id/spiEdad"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:orientation="horizontal"
-                tools:layout_editor_absoluteX="8dp"
-                tools:layout_editor_absoluteY="106dp">
-
-
-                <TextView
-                    android:id="@+id/lblAddDescrip"
-                    android:layout_width="152dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Descripción"
-                    android:textAlignment="gravity" />
-
-                <MultiAutoCompleteTextView
-                    android:id="@+id/multiAutoCompleteTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:orientation="horizontal"
-                tools:layout_editor_absoluteX="8dp"
-                tools:layout_editor_absoluteY="106dp">
-
-                <TextView
-                    android:id="@+id/lblAddRango"
+                    android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Estado de Salud" />
-
-                <SeekBar
-                    android:id="@+id/rango"
-                    style="@style/Widget.AppCompat.SeekBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:max="10"
-                    android:progress="3" />
-
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:orientation="horizontal"
-                tools:layout_editor_absoluteX="8dp"
-                tools:layout_editor_absoluteY="106dp">
-
-                <TextView
-                    android:id="@+id/lblAddFoto"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="FotoGrafia"
-                    android:textAlignment="gravity" />
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_margin="25dp"
+                    android:text="Selecionar la opciones para poder escoger una fotografia del animal" />
 
                 <Button
-                    android:id="@+id/btnAddFotoGaleria"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_weight="1"
-                    android:onClick="clicfoto"
-                    android:text="Examinar Fotos" />
+                    android:id="@+id/button9"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/divider"
+                    android:layout_margin="10dp"
+                    android:background="@android:color/holo_green_light"
+                    android:onClick="clickFotos"
+                    android:text="Galeria" />
 
+                <View
+                    android:id="@+id/divider2"
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"
+                    android:layout_margin="2dp"
+                    android:background="@android:color/holo_orange_light" />
+
+                <Button
+                    android:id="@+id/button8"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_above="@+id/divider"
+                    android:layout_alignParentStart="true"
+                    android:layout_margin="10dp"
+                    android:background="@android:color/holo_green_light"
+                    android:onClick="clickFotos"
+                    android:text="Camara" />
+
+                <ImageView
+                    android:id="@+id/ImgAnimalAdd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="25dp"
+                    app:srcCompat="@drawable/ic_menu_camera" />
 
             </LinearLayout>
-
-            <ImageView
-                android:id="@+id/imgAnimalAdd"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                app:srcCompat="@drawable/ic_menu_camera"
-                tools:layout_editor_absoluteX="112dp"
-                tools:layout_editor_absoluteY="309dp" />
-
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp" />
-
-        </LinearLayout>
-    </ScrollView>
+        </ScrollView>
+    </LinearLayout>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
@@ -249,7 +134,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:menu="@menu/navigation" />
+        app:menu="@menu/navigation" >
+
+    </android.support.design.widget.BottomNavigationView>
 
 
 
