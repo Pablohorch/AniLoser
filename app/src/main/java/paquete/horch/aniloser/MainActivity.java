@@ -47,6 +47,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     Button btnAddSeguimientoRaza;
     Button btnAddSeguimientoFoto;
     Button btnAddSeguimientoOtros;
+    Button btnAddImgAceptar;
+    Button btnAddImgCancelar;
+
+
 
 
     //--------------------Variable del animal
@@ -240,6 +244,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                      @Override
                      public void onClick(View v) {
                          clickDeListado(adapP,listaAdd,perros);
+
                      }
                  });
 
