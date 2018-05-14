@@ -7,5 +7,7 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Ajustes</string>
     <string name="txtAdvAdd">En esta pantalla podras añadir un nuevo animal en cualquiero modo. Modo Busqueda (Ese animal se ha perdido) o modo Encontrado (Ese animal ha sido encontrado)</string>
+    <string name="advertenciaFotografiaAdd">Selecionar la opciones para poder escoger una fotografia del animal</string>
+    <string name="google_android_map_api_key">AIzaSyBT3E3vIWOxDhi5E9v4v68Z8GCcOaM9ewI</string>
 
 </resources>

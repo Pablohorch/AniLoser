@@ -107,12 +107,12 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         btnAddSeguimientoRaza=(Button) findViewById(R.id.btnAddSeguimientoRaza);
         btnAddSeguimientoFoto=(Button) findViewById(R.id.btnAddSeguimientoFoto);
         btnAddSeguimientoOtros=(Button) findViewById(R.id.btnAddSeguimientoOtros);
+        btnAddImgAceptar=(Button) findViewById(R.id.btnAddImgAceptar);
+        btnAddImgCancelar=(Button) findViewById(R.id.btnAddImgCancelar);
 
 
 //--------------------------------------------------------------------------------------------
         final RecyclerView listadoRaza=(RecyclerView) findViewById(R.id.listadoAddRazas);
-
-
 
 
         final ArrayList<especie> especies=new ArrayList<especie>();
@@ -125,6 +125,9 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         listadoRaza.setLayoutManager(new GridLayoutManager(this,2));
         adaptador adap=clickDeListado(new adaptador(especies),listadoRaza,especies);
         listadoRaza.setAdapter(adap);
+
+//--------------------------------------- Mapas ------------------------------------------------
+
 }
 
     @Override
@@ -215,6 +218,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         }
         ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(image);
+        btnAddImgCancelar.setEnabled(true);
+        btnAddImgAceptar.setEnabled(true);
     }
 
     public adaptador clickDeListado(adaptador AV, final RecyclerView listaAdd, Object x){
@@ -268,6 +273,17 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
             code = DESDE_GALERIA;
             startActivityForResult(intent, code);
         }
+    }
+
+    public void clickCancelarFoto(View v){
+        ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(null);
+    }
+
+    public void clickAceptarFoto(View v){
+        ((ScrollView) findViewById(R.id.scrollAddImagen)).setVisibility(View.GONE);
+        ((ScrollView) findViewById(R.id.scrollAddOtros)).setVisibility(View.VISIBLE);
+            btnAddSeguimientoFoto.setEnabled(true);
+
     }
 }
 

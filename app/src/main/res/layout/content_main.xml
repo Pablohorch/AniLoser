@@ -67,9 +67,32 @@
 
         </android.support.v7.widget.RecyclerView>
 
+
         <ScrollView
+            android:id="@+id/scrollAddOtros"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <fragment
+                    android:id="@+id/mapaDondeSePerdio"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    class="com.google.android.gms.maps.SupportMapFragment" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <ScrollView
+            android:id="@+id/scrollAddImagen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -83,7 +106,7 @@
                     android:layout_alignParentTop="true"
                     android:layout_centerHorizontal="true"
                     android:layout_margin="25dp"
-                    android:text="Selecionar la opciones para poder escoger una fotografia del animal" />
+                    android:text="@string/advertenciaFotografiaAdd" />
 
                 <Button
                     android:id="@+id/button9"
@@ -118,8 +141,7 @@
                     android:id="@+id/ImgAnimalAdd"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="25dp"
-                    app:srcCompat="@drawable/ic_menu_camera" />
+                    android:layout_margin="25dp" />
 
                 <LinearLayout
                     android:id="@+id/btnAddControlImagen"
@@ -133,6 +155,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@android:color/holo_green_light"
+                        android:enabled="false"
+                        android:onClick="clickAceptarFoto"
                         android:text="Aceptar" />
 
                     <Button
@@ -141,6 +165,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@android:color/holo_green_light"
+                        android:enabled="false"
+                        android:onClick="clickCancelarFoto"
                         android:text="Cancelar" />
 
                 </LinearLayout>
@@ -153,8 +179,10 @@
                     android:layout_weight="1" />
 
             </LinearLayout>
+
         </ScrollView>
     </LinearLayout>
+
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
