@@ -34,7 +34,11 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -53,6 +57,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback, GoogleMap.OnMapLongClickListener{
@@ -64,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Button btnAddSeguimientoRaza;
     Button btnAddSeguimientoFoto;
     Button btnAddSeguimientoOtros;
+    Button btnAddSeguimientoLugar;
     Button btnAddImgAceptar;
     Button btnAddImgCancelar;
 
@@ -83,6 +89,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Marker animalMarket;
     MarkerOptions mapAddDondeEstaElAnimalOption;
     LatLng ubicacionSeleccionada;
+
+    //--------------------Otros------------------------
+    Spinner SpiSize;
+    CalendarView calendario;
+    SeekBar barradeSalud;
+
+    RadioButton rdbTelef;
+    RadioButton rdbCorreo;
+    RadioButton rdbRedes;
+
+    EditText txtContacto;
+    EditText txtDescripcion;
 
 
     @Override
@@ -115,10 +133,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void inicializador() {
+        //-----------------------------------------Otros--------------------------------------------------
+        SpiSize=(Spinner) findViewById(R.id.spiSize);
+        SpiSize.setAdapter( new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, listados.size));
+        calendario=(CalendarView) findViewById(R.id.calendarioDiasMaximos);
+        barradeSalud=(SeekBar) findViewById(R.id.saludDelAnimal);
+
+        rdbTelef=(RadioButton) findViewById(R.id.rdbTelefono);
+        rdbCorreo=(RadioButton) findViewById(R.id.rdbCorreo);
+        rdbRedes=(RadioButton) findViewById(R.id.rdbRedes);
+
+        txtContacto=(EditText) findViewById(R.id.txtContacto);
+
+
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        //Añadir
+        //-------------------------Añadir-------------------------
 
         btnAddSeguimientoEspecie = (Button) findViewById(R.id.btnAddSeguimientoEspecie);
         btnAddSeguimientoRaza = (Button) findViewById(R.id.btnAddSeguimientoRaza);
@@ -126,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnAddSeguimientoOtros = (Button) findViewById(R.id.btnAddSeguimientoOtros);
         btnAddImgAceptar = (Button) findViewById(R.id.btnAddImgAceptar);
         btnAddImgCancelar = (Button) findViewById(R.id.btnAddImgCancelar);
+        btnAddSeguimientoLugar=(Button) findViewById(R.id.btnSeguimientoLugar);
 
 
 //--------------------------------------------------------------------------------------------
@@ -207,10 +239,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     //Funcion de la barra de navegacion inferior
-    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
+    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener  = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override    public boolean onNavigationItemSelected(@NonNull MenuItem item) {   switch (item.getItemId()) {
                 case R.id.navigation_home:
                     return true;
                 case R.id.navigation_dashboard:
@@ -281,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     listaAdd.setVisibility(View.GONE);
                     btnAddSeguimientoRaza.setText(nombre);
                     btnAddSeguimientoRaza.setEnabled(true);
+                    ((ScrollView) findViewById(R.id.scrollAddImagen)).setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -306,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void clickAceptarFoto(View v) {
         ((ScrollView) findViewById(R.id.scrollAddImagen)).setVisibility(View.GONE);
-        ((ScrollView) findViewById(R.id.scrollAddOtros)).setVisibility(View.VISIBLE);
+        ((ScrollView) findViewById(R.id.scrollAddUbicacion)).setVisibility(View.VISIBLE);
         btnAddSeguimientoFoto.setEnabled(true);
 
     }
@@ -345,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                          public void onClick(DialogInterface dialog, int id) {
                              ((ScrollView) findViewById(R.id.scrollAddUbicacion)).setVisibility(View.GONE);
                              ((ScrollView) findViewById(R.id.scrollAddOtros)).setVisibility(View.VISIBLE);
+                             btnAddSeguimientoLugar.setEnabled(true);
 
                          }
                      });

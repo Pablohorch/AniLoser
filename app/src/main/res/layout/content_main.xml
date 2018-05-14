@@ -12,8 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:layout_editor_absoluteX="143dp"
-        tools:layout_editor_absoluteY="271dp">
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <LinearLayout
             android:id="@+id/botonesSeguiminto"
@@ -72,7 +72,7 @@
             android:id="@+id/listadoAddRazas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:visibility="visible">
 
         </android.support.v7.widget.RecyclerView>
 
@@ -109,17 +109,17 @@
         </ScrollView>
 
 
-
         <ScrollView
             android:id="@+id/scrollAddOtros"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="15dp"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView4"
@@ -128,25 +128,26 @@
                     android:text="Forma de contacto" />
 
                 <RadioGroup
+                    android:id="@+id/grupo"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
                     <RadioButton
-                        android:id="@+id/radioButton"
+                        android:id="@+id/rdbTelefono"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Numero Telefono" />
 
                     <RadioButton
-                        android:id="@+id/radioButton2"
+                        android:id="@+id/rdbCorreo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Correo  Electronico" />
 
                     <RadioButton
-                        android:id="@+id/radioButton3"
+                        android:id="@+id/rdbRedes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -154,11 +155,83 @@
                 </RadioGroup>
 
                 <EditText
-                    android:id="@+id/editText"
+                    android:id="@+id/txtContacto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:inputType="textPersonName" />
+
+                <TextView
+                    android:id="@+id/textView5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="22dp"
+                    android:text="Descripcion de la situacion del animal" />
+
+                <AutoCompleteTextView
+                    android:id="@+id/txtDescripcion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/textView7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="20dp"
+                    android:text="Dia que puede cuidar al animal" />
+
+                <CalendarView
+                    android:id="@+id/calendarioDiasMaximos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="20dp"
+                    android:text="Tamaño del animal respecto a su raza" />
+
+                <Spinner
+                    android:id="@+id/spiSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="20dp" />
+
+                <TextView
+                    android:id="@+id/textView6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="20dp"
+                    android:text="Estado de salud" />
+
+                <SeekBar
+                    android:id="@+id/saludDelAnimal"
+                    style="@style/Widget.AppCompat.SeekBar.Discrete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:max="10"
+                    android:progress="3" />
+
+                <Button
+                    android:id="@+id/btnAddAceptarAnimal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/holo_red_dark"
+                    android:text="Aceptar Animal" />
+
+                <View
+                    android:id="@+id/view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="40dp" />
+
             </LinearLayout>
         </ScrollView>
 
