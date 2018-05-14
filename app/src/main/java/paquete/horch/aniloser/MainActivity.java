@@ -1,15 +1,22 @@
 package paquete.horch.aniloser;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,11 +41,21 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        OnMapReadyCallback, GoogleMap.OnMapLongClickListener{
 
 
     public static final int CAPTURE_IMAGE_FULLSIZE_ACTIVITY_REQUEST_CODE = 1777;
@@ -51,11 +68,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     Button btnAddImgCancelar;
 
 
-
-
     //--------------------Variable del animal
-    int salud=0;
-
+    int salud = 0;
 
 
     //----------- vvariable de la imagen----
@@ -64,13 +78,19 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     private static final int DESDE_CAMARA = 1;
     private static final int DESDE_GALERIA = 2;
     Intent intent;
-    //------------------------------------------
+    //------------------- Mapas -----------------------
+    GoogleMap mapasAdd;
+    private Marker animalMarket;
+    MarkerOptions mapAddDondeEstaElAnimalOption;
+    LatLng ubicacionSeleccionada;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -87,48 +107,51 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         inicializador();
 
 
-        String[] arrayEdad=new String[25];
-        for (int x=0;x<arrayEdad.length;x++){
-            arrayEdad[x]=x+"";
+        String[] arrayEdad = new String[25];
+        for (int x = 0; x < arrayEdad.length; x++) {
+            arrayEdad[x] = x + "";
         }
-
-
-
 
     }
 
-    public void inicializador(){
+    public void inicializador() {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         //Añadir
 
-        btnAddSeguimientoEspecie=(Button) findViewById(R.id.btnAddSeguimientoEspecie);
-        btnAddSeguimientoRaza=(Button) findViewById(R.id.btnAddSeguimientoRaza);
-        btnAddSeguimientoFoto=(Button) findViewById(R.id.btnAddSeguimientoFoto);
-        btnAddSeguimientoOtros=(Button) findViewById(R.id.btnAddSeguimientoOtros);
-        btnAddImgAceptar=(Button) findViewById(R.id.btnAddImgAceptar);
-        btnAddImgCancelar=(Button) findViewById(R.id.btnAddImgCancelar);
+        btnAddSeguimientoEspecie = (Button) findViewById(R.id.btnAddSeguimientoEspecie);
+        btnAddSeguimientoRaza = (Button) findViewById(R.id.btnAddSeguimientoRaza);
+        btnAddSeguimientoFoto = (Button) findViewById(R.id.btnAddSeguimientoFoto);
+        btnAddSeguimientoOtros = (Button) findViewById(R.id.btnAddSeguimientoOtros);
+        btnAddImgAceptar = (Button) findViewById(R.id.btnAddImgAceptar);
+        btnAddImgCancelar = (Button) findViewById(R.id.btnAddImgCancelar);
 
 
 //--------------------------------------------------------------------------------------------
-        final RecyclerView listadoRaza=(RecyclerView) findViewById(R.id.listadoAddRazas);
+        final RecyclerView listadoRaza = (RecyclerView) findViewById(R.id.listadoAddRazas);
 
 
-        final ArrayList<especie> especies=new ArrayList<especie>();
+        final ArrayList<especie> especies = new ArrayList<especie>();
 
-        for (int x=0;x<listados.especies.length;x++){
-            especies.add(new especie(listados.especies[x],listados.especieURL[x]));
-            }
+        for (int x = 0; x < listados.especies.length; x++) {
+            especies.add(new especie(listados.especies[x], listados.especieURL[x]));
+        }
 
 
-        listadoRaza.setLayoutManager(new GridLayoutManager(this,2));
-        adaptador adap=clickDeListado(new adaptador(especies),listadoRaza,especies);
+        listadoRaza.setLayoutManager(new GridLayoutManager(this, 2));
+        adaptador adap = clickDeListado(new adaptador(especies), listadoRaza, especies);
         listadoRaza.setAdapter(adap);
 
 //--------------------------------------- Mapas ------------------------------------------------
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapaDondeSePerdio);
 
-}
+        mapFragment.getMapAsync(this);
+        mapAddDondeEstaElAnimalOption = new MarkerOptions().position(new LatLng(0, 0)).title("Que te gusta marcar");
+
+
+    }
 
     @Override
     public void onBackPressed() {
@@ -148,7 +171,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-       int id = item.getItemId();
+        int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
@@ -184,17 +207,16 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     }
 
     //Funcion de la barra de navegacion inferior
-    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener  = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-           switch (item.getItemId()) {
+    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
                 case R.id.navigation_home:
-                     return true;
+                    return true;
                 case R.id.navigation_dashboard:
-                   return true;
+                    return true;
                 case R.id.navigation_notifications:
-                   return true;
+                    return true;
             }
             return false;
         }
@@ -204,87 +226,131 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Bitmap image = null;
         if (requestCode == DESDE_CAMARA) {
-            if(requestCode == DESDE_CAMARA && resultCode == RESULT_OK && data != null){
+            if (requestCode == DESDE_CAMARA && resultCode == RESULT_OK && data != null) {
                 image = (Bitmap) data.getParcelableExtra("data");
             }
         }
         if (requestCode == DESDE_GALERIA) {
-            if(requestCode == DESDE_GALERIA && resultCode == RESULT_OK && data != null){
+            if (requestCode == DESDE_GALERIA && resultCode == RESULT_OK && data != null) {
                 Uri rutaImagen = data.getData();
                 try {
                     image = BitmapFactory.decodeStream(new BufferedInputStream(getContentResolver().openInputStream(rutaImagen)));
-                } catch (FileNotFoundException e) { }
+                } catch (FileNotFoundException e) {
+                }
             }
 
         }
         ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(image);
         btnAddImgCancelar.setEnabled(true);
         btnAddImgAceptar.setEnabled(true);
+
     }
 
-    public adaptador clickDeListado(adaptador AV, final RecyclerView listaAdd, Object x){
-        final Object y=x;
-     AV.setOnItemClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View v) {
-             ArrayList<especie> a=(ArrayList) y;
-             String nombre=a.get(listaAdd.getChildAdapterPosition(v)).nombre;
+    public adaptador clickDeListado(adaptador AV, final RecyclerView listaAdd, Object x) {
+        final Object y = x;
+        AV.setOnItemClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<especie> a = (ArrayList) y;
+                String nombre = a.get(listaAdd.getChildAdapterPosition(v)).nombre;
 
-             Boolean especieCompleta=btnAddSeguimientoEspecie.isEnabled();
-             Boolean razaCompleta=btnAddSeguimientoRaza.isEnabled();
+                Boolean especieCompleta = btnAddSeguimientoEspecie.isEnabled();
+                Boolean razaCompleta = btnAddSeguimientoRaza.isEnabled();
 
 
-             if (especieCompleta==false){
+                if (especieCompleta == false) {
                     btnAddSeguimientoEspecie.setText(nombre);
                     btnAddSeguimientoEspecie.setEnabled(true);
 
-                 final ArrayList<especie> perros=new ArrayList<especie>();
+                    final ArrayList<especie> perros = new ArrayList<especie>();
 
-                 for (int x=0;x<listados.razaPerros.length;x++){
-                     perros.add(new especie(listados.razaPerros[x],listados.razaPerroURL[x]));
-                 }
-                 final adaptador adapP=new adaptador(perros);
-                 listaAdd.setAdapter(adapP);
-                 adapP.setOnItemClickListener(new View.OnClickListener() {
-                     @Override
-                     public void onClick(View v) {
-                         clickDeListado(adapP,listaAdd,perros);
+                    for (int x = 0; x < listados.razaPerros.length; x++) {
+                        perros.add(new especie(listados.razaPerros[x], listados.razaPerroURL[x]));
+                    }
+                    final adaptador adapP = new adaptador(perros);
+                    listaAdd.setAdapter(adapP);
+                    adapP.setOnItemClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            clickDeListado(adapP, listaAdd, perros);
 
-                     }
-                 });
+                        }
+                    });
 
-             }else if(!razaCompleta){
+                } else if (!razaCompleta) {
                     listaAdd.setVisibility(View.GONE);
                     btnAddSeguimientoRaza.setText(nombre);
                     btnAddSeguimientoRaza.setEnabled(true);
-             }
-         }
-     });
-     return AV;
+                }
+            }
+        });
+        return AV;
     }
-    public void clickFotos(View v){
-        Button a=(Button) v;
-        if (a.getText().equals("Camara")){
+
+    public void clickFotos(View v) {
+        Button a = (Button) v;
+        if (a.getText().equals("Camara")) {
             intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             code = DESDE_CAMARA;
             startActivityForResult(intent, code);
-        }else{
+        } else {
             intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
             code = DESDE_GALERIA;
             startActivityForResult(intent, code);
         }
     }
 
-    public void clickCancelarFoto(View v){
+    public void clickCancelarFoto(View v) {
         ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(null);
     }
 
-    public void clickAceptarFoto(View v){
+    public void clickAceptarFoto(View v) {
         ((ScrollView) findViewById(R.id.scrollAddImagen)).setVisibility(View.GONE);
         ((ScrollView) findViewById(R.id.scrollAddOtros)).setVisibility(View.VISIBLE);
-            btnAddSeguimientoFoto.setEnabled(true);
+        btnAddSeguimientoFoto.setEnabled(true);
 
     }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mapasAdd = googleMap;
+        animalMarket = mapasAdd.addMarker(mapAddDondeEstaElAnimalOption);
+        mapasAdd.setOnMapLongClickListener(this);
+
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+
+       mapAddDondeEstaElAnimalOption.position(latLng);
+       mapasAdd.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+       animalMarket.remove();
+       animalMarket= mapasAdd.addMarker(mapAddDondeEstaElAnimalOption);
+       ubicacionSeleccionada=latLng;
+ }
+
+ public void clikcAsignaraUBI(View v){
+     AlertDialog.Builder builder = new AlertDialog.Builder(this);
+     builder.setMessage("¿Desea continuar con la transferencia de dinero?")
+             .setTitle("Advertencia")
+             .setCancelable(false)
+             .setNegativeButton("Cancelar",
+                     new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int id) {
+                             dialog.cancel();
+                         }
+                     })
+             .setPositiveButton("Continuar",
+                     new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int id) {
+                             ((ScrollView) findViewById(R.id.scrollAddUbicacion)).setVisibility(View.GONE);
+                             ((ScrollView) findViewById(R.id.scrollAddOtros)).setVisibility(View.VISIBLE);
+
+                         }
+                     });
+     AlertDialog alert = builder.create();
+     alert.show();
+ }
 }
 
 

@@ -49,6 +49,15 @@
                 android:text="Foto" />
 
             <Button
+                android:id="@+id/btnSeguimientoLugar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/holo_orange_light"
+                android:enabled="false"
+                android:text="Lugar" />
+
+            <Button
                 android:id="@+id/btnAddSeguimientoOtros"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -69,10 +78,10 @@
 
 
         <ScrollView
-            android:id="@+id/scrollAddOtros"
+            android:id="@+id/scrollAddUbicacion"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -81,10 +90,75 @@
 
                 <fragment
                     android:id="@+id/mapaDondeSePerdio"
+                    class="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    class="com.google.android.gms.maps.SupportMapFragment" />
+                    android:layout_height="350dp"
+                    android:layout_margin="15dp" />
 
+                <Button
+                    android:id="@+id/btnAddAsignarUbicacion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:layout_marginBottom="200dp"
+                    android:background="@android:color/holo_orange_dark"
+                    android:onClick="clikcAsignaraUBI"
+                    android:text="Asignar la ubicacion" />
+
+            </LinearLayout>
+        </ScrollView>
+
+
+
+        <ScrollView
+            android:id="@+id/scrollAddOtros"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Forma de contacto" />
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <RadioButton
+                        android:id="@+id/radioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Numero Telefono" />
+
+                    <RadioButton
+                        android:id="@+id/radioButton2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Correo  Electronico" />
+
+                    <RadioButton
+                        android:id="@+id/radioButton3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Redes Sociales - ( Instagram, Facebook, Otros )" />
+                </RadioGroup>
+
+                <EditText
+                    android:id="@+id/editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textPersonName" />
             </LinearLayout>
         </ScrollView>
 
