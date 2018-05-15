@@ -152,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         txtContacto=(EditText) findViewById(R.id.txtContacto);
 
+        txtDescripcion=(EditText) findViewById(R.id.txtDescripcion);
+
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
