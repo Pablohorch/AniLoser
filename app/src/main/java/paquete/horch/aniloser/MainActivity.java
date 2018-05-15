@@ -56,11 +56,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback, GoogleMap.OnMapLongClickListener{
+        OnMapReadyCallback, GoogleMap.OnMapLongClickListener,CalendarView.OnDateChangeListener{
 
 
     public static final int CAPTURE_IMAGE_FULLSIZE_ACTIVITY_REQUEST_CODE = 1777;
@@ -77,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //--------------------Variable del animal
     int salud = 0;
 
+    //-------------listado
+    RecyclerView listadoRaza;
 
     //----------- vvariable de la imagen----
     private static final int SELECT_FILE = 1;
@@ -91,8 +95,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     LatLng ubicacionSeleccionada;
 
     //--------------------Otros------------------------
-    Spinner SpiSize;
+    Spinner spiSize;
     CalendarView calendario;
+
+    String fecha ="";
     SeekBar barradeSalud;
 
     RadioButton rdbTelef;
@@ -134,9 +140,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void inicializador() {
         //-----------------------------------------Otros--------------------------------------------------
-        SpiSize=(Spinner) findViewById(R.id.spiSize);
-        SpiSize.setAdapter( new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, listados.size));
+        spiSize=(Spinner) findViewById(R.id.spiSize);
+        spiSize.setAdapter( new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, listados.size));
         calendario=(CalendarView) findViewById(R.id.calendarioDiasMaximos);
+        calendario.setOnDateChangeListener(this);
         barradeSalud=(SeekBar) findViewById(R.id.saludDelAnimal);
 
         rdbTelef=(RadioButton) findViewById(R.id.rdbTelefono);
@@ -155,16 +162,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnAddSeguimientoRaza = (Button) findViewById(R.id.btnAddSeguimientoRaza);
         btnAddSeguimientoFoto = (Button) findViewById(R.id.btnAddSeguimientoFoto);
         btnAddSeguimientoOtros = (Button) findViewById(R.id.btnAddSeguimientoOtros);
+
         btnAddImgAceptar = (Button) findViewById(R.id.btnAddImgAceptar);
         btnAddImgCancelar = (Button) findViewById(R.id.btnAddImgCancelar);
         btnAddSeguimientoLugar=(Button) findViewById(R.id.btnSeguimientoLugar);
 
 
 //--------------------------------------------------------------------------------------------
-        final RecyclerView listadoRaza = (RecyclerView) findViewById(R.id.listadoAddRazas);
+        listadoRaza = (RecyclerView) findViewById(R.id.listadoAddRazas);
 
 
-        final ArrayList<especie> especies = new ArrayList<especie>();
+        ArrayList<especie> especies = new ArrayList<especie>();
 
         for (int x = 0; x < listados.especies.length; x++) {
             especies.add(new especie(listados.especies[x], listados.especieURL[x]));
@@ -238,16 +246,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    //Funcion de la barra de navegacion inferior
     public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener  = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override    public boolean onNavigationItemSelected(@NonNull MenuItem item) {   switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    return true;
-                case R.id.navigation_dashboard:
-                    return true;
-                case R.id.navigation_notifications:
-                    return true;
-            }
+            case R.id.navigation_home:
+                return true;
+            case R.id.navigation_dashboard:
+                return true;
+            case R.id.navigation_notifications:
+                return true;
+        }
             return false;
         }
     };
@@ -358,11 +365,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
        animalMarket.remove();
        animalMarket= mapasAdd.addMarker(mapAddDondeEstaElAnimalOption);
        ubicacionSeleccionada=latLng;
+        ((Button) findViewById(R.id.btnAddAsignarUbicacion)).setEnabled(true);
  }
 
- public void clikcAsignaraUBI(View v){
+    public void clikcAsignaraUBI(View v){
      AlertDialog.Builder builder = new AlertDialog.Builder(this);
-     builder.setMessage("¿Desea continuar con la transferencia de dinero?")
+     builder.setMessage("¿Esta seguro que es la ubicacion del animal?")
              .setTitle("Advertencia")
              .setCancelable(false)
              .setNegativeButton("Cancelar",
@@ -383,6 +391,141 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      AlertDialog alert = builder.create();
      alert.show();
  }
+
+
+ //---------AceptarAnimal-----------------------
+
+    public void clicAceptarAnimal(View v){
+        String viaContact="";
+        if (rdbTelef.isChecked())
+            viaContact="Telefono";
+        if (rdbCorreo.isChecked())
+            viaContact="Correo Electronico";
+        if (rdbRedes.isChecked())
+            viaContact="Red Social";
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("¿Es la siguiente informacion correcta? \n " +
+                "Especie : "+btnAddSeguimientoEspecie.getText()+"\n " +
+                "Raza : "+btnAddSeguimientoRaza.getText()+"\n " +
+                "Ubicacion : "+btnAddSeguimientoEspecie.getText()+"\n " +
+                "------------------Tu información---------------- \n" +
+                "Via de contacto : "+viaContact+"\n " +
+                "Contacto : "+txtContacto.getText().toString()+"\n " +
+                "Fecha maxima : "+fecha+"\n " +
+                "Tamaño : "+spiSize.getSelectedItem().toString()+"\n ")
+                .setTitle("Cuidado")
+                .setCancelable(false)
+                .setNegativeButton("Cancelar",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        })
+                .setPositiveButton("Continuar",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+ //---------------Reinicio-----------------------------
+
+    public void clicBtnSeguimiento(View v){
+       int btn=v.getId();
+            setTitle(btn+"");
+        if (btn==(btnAddSeguimientoEspecie.getId())){
+            try {
+                reinicioEspecie();
+            }catch (Exception e){
+                setTitle("error "+e.getMessage());
+            }
+
+        }
+
+        if (btn==(btnAddSeguimientoFoto.getId())){
+            reinicioImagen();
+        }
+        if (btn==(btnAddSeguimientoLugar.getId())){
+            reinicioUbi();
+        }
+        if (btn==(btnAddSeguimientoOtros.getId())){
+            reinicioOtros();
+        }
+
+
+    }
+
+    public void reinicioEspecie(){
+        btnAddSeguimientoEspecie.setText("Especies");
+        ArrayList<especie> especies = new ArrayList<especie>();
+
+        for (int x = 0; x < listados.especies.length; x++) {
+            especies.add(new especie(listados.especies[x], listados.especieURL[x]));
+        }
+
+        listadoRaza.setLayoutManager(new GridLayoutManager(this, 2));
+        adaptador adap = clickDeListado(new adaptador(especies), listadoRaza, especies);
+        listadoRaza.setAdapter(adap);
+
+        reinicioImagen();
+
+    }
+    public void reinicioRaza(){
+
+        String especie=btnAddSeguimientoEspecie.getText().toString();
+
+        final ArrayList<especie> perros = new ArrayList<especie>();
+
+        for (int x = 0; x < listados.razaPerros.length; x++) {
+            perros.add(new especie(listados.razaPerros[x], listados.razaPerroURL[x]));
+        }
+        final adaptador adapP = new adaptador(perros);
+        listadoRaza.setAdapter(adapP);
+        adapP.setOnItemClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clickDeListado(adapP, listadoRaza, perros);
+
+            }});
+
+        reinicioImagen();
+    }
+    public void reinicioImagen(){
+        ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(null);
+        btnAddImgCancelar.setEnabled(false);
+        btnAddImgAceptar.setEnabled(false);
+       // reinicioUbi();
+    }
+    public void reinicioUbi(){
+        ((Button) findViewById(R.id.btnAddAsignarUbicacion)).setEnabled(false);
+              reinicioOtros();
+
+    }
+    public void reinicioOtros(){
+        rdbRedes.setChecked(false);
+        rdbCorreo.setChecked(false);
+        rdbTelef.setChecked(false);
+
+        txtContacto.setText("");
+
+        txtDescripcion.setText("");
+
+        barradeSalud.setProgress(0);
+
+        //calendario.setDate(System.currentTimeMillis(),false,true);
+
+        spiSize.setAdapter( new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, listados.size));
+    }
+
+    @Override
+    public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+        fecha=dayOfMonth+"/"+month+"/"+year;
+    }
 }
 
 
@@ -420,3 +563,19 @@ class especie{
 }
 
 
+/*
+   //Funcion de la barra de navegacion inferior
+    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener  = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override    public boolean onNavigationItemSelected(@NonNull MenuItem item) {   switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    return true;
+                case R.id.navigation_dashboard:
+                    return true;
+                case R.id.navigation_notifications:
+                    return true;
+            }
+            return false;
+        }
+    };
+
+ */
