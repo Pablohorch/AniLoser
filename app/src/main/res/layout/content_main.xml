@@ -8,10 +8,20 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/listadoAnimalesPerdidos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible">
+
+    </android.support.v7.widget.RecyclerView>
+
     <LinearLayout
+        android:id="@+id/RegistroAnimal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:visibility="gone"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 

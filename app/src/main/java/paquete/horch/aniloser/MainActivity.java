@@ -1,27 +1,17 @@
 package paquete.horch.aniloser;
 
-import android.Manifest;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Range;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -31,39 +21,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback, GoogleMap.OnMapLongClickListener,CalendarView.OnDateChangeListener{
-
 
     public static final int CAPTURE_IMAGE_FULLSIZE_ACTIVITY_REQUEST_CODE = 1777;
 
@@ -75,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Button btnAddImgAceptar;
     Button btnAddImgCancelar;
 
-
     //--------------------Variable del animal
     int salud = 0;
 
@@ -84,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //----------- vvariable de la imagen----
     private static final int SELECT_FILE = 1;
+    Bitmap image = null;
     static int code = 0;
     private static final int DESDE_CAMARA = 1;
     private static final int DESDE_GALERIA = 2;
@@ -251,10 +231,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener  = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override    public boolean onNavigationItemSelected(@NonNull MenuItem item) {   switch (item.getItemId()) {
             case R.id.navigation_home:
+                ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
                 return true;
             case R.id.navigation_dashboard:
+                ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
                 return true;
             case R.id.navigation_notifications:
+                ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.VISIBLE);
                 return true;
         }
             return false;
@@ -279,9 +262,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
         }
-        ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(image);
-        btnAddImgCancelar.setEnabled(true);
-        btnAddImgAceptar.setEnabled(true);
+
+        if (image!=null) {
+            btnAddImgCancelar.setEnabled(true);
+            btnAddImgAceptar.setEnabled(true);
+            ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(image);
+
+        }
+
+
 
     }
 
@@ -395,6 +384,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
  }
 
 
+
  //---------AceptarAnimal-----------------------
 
     public void clicAceptarAnimal(View v){
@@ -449,6 +439,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
 
+        if (btn==(btnAddSeguimientoRaza.getId())){
+            reinicioRaza();
+        }
+
         if (btn==(btnAddSeguimientoFoto.getId())){
             reinicioImagen();
         }
@@ -463,6 +457,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void reinicioEspecie(){
+        listadoRaza.setVisibility(View.VISIBLE);
+        btnAddSeguimientoEspecie.setEnabled(false);
         btnAddSeguimientoEspecie.setText("Especies");
         ArrayList<especie> especies = new ArrayList<especie>();
 
@@ -474,41 +470,64 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         adaptador adap = clickDeListado(new adaptador(especies), listadoRaza, especies);
         listadoRaza.setAdapter(adap);
 
-        reinicioImagen();
+        reinicioRaza();
 
     }
     public void reinicioRaza(){
-
+        listadoRaza.setVisibility(View.VISIBLE);
+        btnAddSeguimientoRaza.setEnabled(false);
+        btnAddSeguimientoRaza.setText("Raza");
         String especie=btnAddSeguimientoEspecie.getText().toString();
 
         final ArrayList<especie> perros = new ArrayList<especie>();
 
-        for (int x = 0; x < listados.razaPerros.length; x++) {
-            perros.add(new especie(listados.razaPerros[x], listados.razaPerroURL[x]));
+        if(btnAddSeguimientoEspecie.isEnabled()) {
+            for (int x=0; x < listados.razaPerros.length; x++) {
+                perros.add(new especie(listados.razaPerros[x], listados.razaPerroURL[x]));
+            }
+            final adaptador adapP=new adaptador(perros);
+            listadoRaza.setAdapter(adapP);
+            adapP.setOnItemClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickDeListado(adapP, listadoRaza, perros);
+
+                }
+            });
         }
-        final adaptador adapP = new adaptador(perros);
-        listadoRaza.setAdapter(adapP);
-        adapP.setOnItemClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clickDeListado(adapP, listadoRaza, perros);
-
-            }});
-
         reinicioImagen();
     }
     public void reinicioImagen(){
+        if (btnAddSeguimientoRaza.isEnabled()){
+        ((ScrollView) findViewById(R.id.scrollAddImagen)).setVisibility(View.VISIBLE);}
+        else{ ((ScrollView) findViewById(R.id.scrollAddImagen)).setVisibility(View.GONE);}
+
+        btnAddSeguimientoFoto.setEnabled(false);
+        image=null;
         ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(null);
+
         btnAddImgCancelar.setEnabled(false);
         btnAddImgAceptar.setEnabled(false);
-       // reinicioUbi();
+        reinicioUbi();
     }
     public void reinicioUbi(){
+        btnAddSeguimientoLugar.setEnabled(false);
+
+        if (btnAddSeguimientoFoto.isEnabled()){
+        ((ScrollView) findViewById(R.id.scrollAddUbicacion)).setVisibility(View.VISIBLE);}
+        else{ ((ScrollView) findViewById(R.id.scrollAddUbicacion)).setVisibility(View.GONE);}
+
         ((Button) findViewById(R.id.btnAddAsignarUbicacion)).setEnabled(false);
               reinicioOtros();
 
     }
     public void reinicioOtros(){
+        if (btnAddSeguimientoLugar.isEnabled()){
+       ((ScrollView) findViewById(R.id.scrollAddOtros)).setVisibility(View.VISIBLE);}
+        else{ ((ScrollView) findViewById(R.id.scrollAddOtros)).setVisibility(View.GONE);}
+
+
+        btnAddSeguimientoOtros.setEnabled(false);
         rdbRedes.setChecked(false);
         rdbCorreo.setChecked(false);
         rdbTelef.setChecked(false);
@@ -519,8 +538,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         barradeSalud.setProgress(0);
 
-        //calendario.setDate(System.currentTimeMillis(),false,true);
-
         spiSize.setAdapter( new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, listados.size));
     }
 
@@ -528,6 +545,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
         fecha=dayOfMonth+"/"+month+"/"+year;
     }
+
+    public void aceptarEnviar(){
+
+ }
+
 }
 
 
