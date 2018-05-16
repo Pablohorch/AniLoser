@@ -12,6 +12,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -46,6 +47,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         OnMapReadyCallback, GoogleMap.OnMapLongClickListener,CalendarView.OnDateChangeListener{
 
     public static final int CAPTURE_IMAGE_FULLSIZE_ACTIVITY_REQUEST_CODE = 1777;
+
+
+
+    static int width = 0; // ancho absoluto en pixels
+    static int height = 0; // alto absoluto en pixels
+
 
     Button btnAddSeguimientoEspecie;
     Button btnAddSeguimientoRaza;
@@ -88,6 +95,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     EditText txtContacto;
     EditText txtDescripcion;
 
+    //-------------------------------------------------------LISTADO----------------------------------------------
+
+    RecyclerView listadoPerdidos;
+    static ArrayList<Button> listaBotonesSalud=new ArrayList<Button>();
+    static ArrayList<Integer> listaPuntuacionSalud=new ArrayList<Integer>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +132,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void inicializador() {
+
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        width = metrics.widthPixels; // ancho absoluto en pixels
+        height = metrics.heightPixels; // alto absoluto en pixels
+
         //-----------------------------------------Otros--------------------------------------------------
         spiSize=(Spinner) findViewById(R.id.spiSize);
         spiSize.setAdapter( new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, listados.size));
@@ -172,6 +192,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mapFragment.getMapAsync(this);
         mapAddDondeEstaElAnimalOption = new MarkerOptions().position(new LatLng(0, 0)).title("Que te gusta marcar");
 
+
+
+        //-----------------------------------------------------------------------------------------
+        listadoPerdidos=(RecyclerView) findViewById(R.id.listadoAnimalesPerdidos);
+        ejecutorInicialPerdido();
 
     }
 
@@ -232,12 +257,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override    public boolean onNavigationItemSelected(@NonNull MenuItem item) {   switch (item.getItemId()) {
             case R.id.navigation_home:
                 ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
+                listadoPerdidos.setVisibility(View.VISIBLE);
                 return true;
             case R.id.navigation_dashboard:
                 ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
+                listadoPerdidos.setVisibility(View.GONE);
                 return true;
             case R.id.navigation_notifications:
                 ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.VISIBLE);
+                listadoPerdidos.setVisibility(View.GONE);
                 return true;
         }
             return false;
@@ -429,7 +457,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void clicBtnSeguimiento(View v){
        int btn=v.getId();
-            setTitle(btn+"");
         if (btn==(btnAddSeguimientoEspecie.getId())){
             try {
                 reinicioEspecie();
@@ -550,6 +577,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
  }
 
+ //----------------------------Listado inicial de aniamles que se han encontrado-----------------------------------
+    public void ejecutorInicialPerdido(){
+        ArrayList<anuncio> manolo=new ArrayList<anuncio>();
+        manolo.add(new anuncio("Perro","Doberman","37.426667, -5.989268",2,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
+        manolo.add(new anuncio("Caballo","Pura sangre","37.428667, -5.979568",3,"https://cdn.pixabay.com/photo/2017/12/27/19/16/dog-3043416_960_720.jpg"));
+        manolo.add(new anuncio("Perro","Doberman","37.429667, -5.979468",8,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
+        manolo.add(new anuncio("Gato","Cachorro","37.426697, -5.979768",3,"https://fotos01.farodevigo.es/2018/01/10/328x206/cachorro.jpg"));
+        manolo.add(new anuncio("Perro","Doberman","37.426677, -5.979258",9,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
+        manolo.add(new anuncio("Tortuga","Mama huevo","37.425667, -5.975268",10,"https://mascotafiel.com/wp-content/uploads/2015/11/perros-Chihuahua_opt-compressor-1.jpg"));
+        manolo.add(new anuncio("Perro","Doberman","37.424667, -5.979248",3,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
+        manolo.add(new anuncio("Polimero","Que quieres","37.476667, -5.974268",1,"https://adiestramientocanino.org/wp-content/uploads/2017/03/perros-mas-cari%C3%B1osos.jpg"));
+        manolo.add(new anuncio("Perro","Doberman","37.425667, -5.977268",7,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
+        manolo.add(new anuncio("Mama huevo","Pesadill","37.496667, -5.978268",3,"https://elpais.com/elpais/imagenes/2015/02/16/buenavida/1424088878_811226_1424253980_noticia_fotograma.jpg"));
+        manolo.add(new anuncio("Perro","Doberman","37.426687, -5.974268",8,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
+
+
+        setTitle(manolo.size()+"");
+        listadoPerdidos.setLayoutManager(new GridLayoutManager(this, 1));
+        adaptadorEncontrados adap = new adaptadorEncontrados(new View(this),manolo);
+        listadoPerdidos.setAdapter(adap);
+
+        for (int x=0;x<listaBotonesSalud.size();x++){
+            listaBotonesSalud.get(x).setWidth(950);
+        }
+    }
+
 }
 
 
@@ -583,23 +636,25 @@ class especie{
     public especie(String Aespecie,String Araza){
         nombre=Aespecie;
         url=Araza;
-     }
+    }
+}
+
+class anuncio{
+
+    String especie;
+    String raza;
+    String lugar;
+    String url;
+    int salud;
+
+
+    public anuncio(String especie,String raza,String lugar,int salud,String url){
+        this.especie=especie;
+        this.raza=raza;
+        this.lugar=lugar;
+        this.url=url;
+        this.salud=salud;
+    }
 }
 
 
-/*
-   //Funcion de la barra de navegacion inferior
-    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener  = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override    public boolean onNavigationItemSelected(@NonNull MenuItem item) {   switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    return true;
-                case R.id.navigation_dashboard:
-                    return true;
-                case R.id.navigation_notifications:
-                    return true;
-            }
-            return false;
-        }
-    };
-
- */
