@@ -1,10 +1,12 @@
 package paquete.horch.aniloser;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -41,7 +43,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback, GoogleMap.OnMapLongClickListener,CalendarView.OnDateChangeListener{
@@ -489,6 +494,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnAddSeguimientoEspecie.setText("Especies");
         ArrayList<especie> especies = new ArrayList<especie>();
 
+
+
         for (int x = 0; x < listados.especies.length; x++) {
             especies.add(new especie(listados.especies[x], listados.especieURL[x]));
         }
@@ -579,6 +586,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
  //----------------------------Listado inicial de aniamles que se han encontrado-----------------------------------
     public void ejecutorInicialPerdido(){
+
+        executor(null,null,null);
+
         ArrayList<anuncio> manolo=new ArrayList<anuncio>();
         manolo.add(new anuncio("Perro","Doberman","37.426667, -5.989268",2,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
         manolo.add(new anuncio("Caballo","Pura sangre","37.428667, -5.979568",3,"https://cdn.pixabay.com/photo/2017/12/27/19/16/dog-3043416_960_720.jpg"));
@@ -601,6 +611,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         for (int x=0;x<listaBotonesSalud.size();x++){
             listaBotonesSalud.get(x).setWidth(950);
         }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    public void executor(String lugar,String modo, String datos){
+        new AsyncTask<String, String, Vector<String>>() {
+            @Override
+
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected Vector<String> doInBackground(String... strings) {
+
+                Vector<String> a=new Vector<String>();
+                ConexionBD();
+
+                return a;
+            }
+
+            @Override
+            protected void onProgressUpdate(String... values) {
+                super.onProgressUpdate(values);
+            }
+
+            @Override
+            protected void onPostExecute(Vector<String> strings) {
+
+            }
+
+            @Override
+            protected void onCancelled() {
+                super.onCancelled();
+            }
+
+        }.execute(lugar,modo,datos);
+    }
+
+    public Connection ConexionBD(){
+        Connection con=null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            con= DriverManager.getConnection("jdbc:mysql://sql2.freesqldatabase.com:3306/sql2233658", "sql2233658", "uK4*dD2%");
+        } catch(Exception e) {
+            e.printStackTrace();
+
+        }
+        return con;
     }
 
 }
