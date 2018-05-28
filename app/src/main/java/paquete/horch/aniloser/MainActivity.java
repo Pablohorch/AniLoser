@@ -45,14 +45,16 @@ import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback, GoogleMap.OnMapLongClickListener,CalendarView.OnDateChangeListener{
+        OnMapReadyCallback, GoogleMap.OnMapLongClickListener,CalendarView.OnDateChangeListener {
 
     public static final int CAPTURE_IMAGE_FULLSIZE_ACTIVITY_REQUEST_CODE = 1777;
-
 
 
     static int width = 0; // ancho absoluto en pixels
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Spinner spiSize;
     CalendarView calendario;
 
-    String fecha ="";
+    String fecha = "";
     SeekBar barradeSalud;
 
     RadioButton rdbTelef;
@@ -103,8 +105,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //-------------------------------------------------------LISTADO----------------------------------------------
 
     RecyclerView listadoPerdidos;
-    static ArrayList<Button> listaBotonesSalud=new ArrayList<Button>();
-    static ArrayList<Integer> listaPuntuacionSalud=new ArrayList<Integer>();
+    static ArrayList<Button> listaBotonesSalud = new ArrayList<Button>();
+
+    static ArrayList<animal> listaAnimalInicioAnuncio = new ArrayList<animal>();
 
 
     @Override
@@ -145,19 +148,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         height = metrics.heightPixels; // alto absoluto en pixels
 
         //-----------------------------------------Otros--------------------------------------------------
-        spiSize=(Spinner) findViewById(R.id.spiSize);
-        spiSize.setAdapter( new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, listados.size));
-        calendario=(CalendarView) findViewById(R.id.calendarioDiasMaximos);
+        spiSize = (Spinner) findViewById(R.id.spiSize);
+        spiSize.setAdapter(new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, listados.size));
+        calendario = (CalendarView) findViewById(R.id.calendarioDiasMaximos);
         calendario.setOnDateChangeListener(this);
-        barradeSalud=(SeekBar) findViewById(R.id.saludDelAnimal);
+        barradeSalud = (SeekBar) findViewById(R.id.saludDelAnimal);
 
-        rdbTelef=(RadioButton) findViewById(R.id.rdbTelefono);
-        rdbCorreo=(RadioButton) findViewById(R.id.rdbCorreo);
-        rdbRedes=(RadioButton) findViewById(R.id.rdbRedes);
+        rdbTelef = (RadioButton) findViewById(R.id.rdbTelefono);
+        rdbCorreo = (RadioButton) findViewById(R.id.rdbCorreo);
+        rdbRedes = (RadioButton) findViewById(R.id.rdbRedes);
 
-        txtContacto=(EditText) findViewById(R.id.txtContacto);
+        txtContacto = (EditText) findViewById(R.id.txtContacto);
 
-        txtDescripcion=(EditText) findViewById(R.id.txtDescripcion);
+        txtDescripcion = (EditText) findViewById(R.id.txtDescripcion);
 
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -172,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         btnAddImgAceptar = (Button) findViewById(R.id.btnAddImgAceptar);
         btnAddImgCancelar = (Button) findViewById(R.id.btnAddImgCancelar);
-        btnAddSeguimientoLugar=(Button) findViewById(R.id.btnSeguimientoLugar);
+        btnAddSeguimientoLugar = (Button) findViewById(R.id.btnSeguimientoLugar);
 
 
 //--------------------------------------------------------------------------------------------
@@ -198,9 +201,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mapAddDondeEstaElAnimalOption = new MarkerOptions().position(new LatLng(0, 0)).title("Que te gusta marcar");
 
 
-
         //-----------------------------------------------------------------------------------------
-        listadoPerdidos=(RecyclerView) findViewById(R.id.listadoAnimalesPerdidos);
+        listadoPerdidos = (RecyclerView) findViewById(R.id.listadoAnimalesPerdidos);
         ejecutorInicialPerdido();
 
     }
@@ -258,24 +260,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener  = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override    public boolean onNavigationItemSelected(@NonNull MenuItem item) {   switch (item.getItemId()) {
-            case R.id.navigation_home:
-                ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
-                listadoPerdidos.setVisibility(View.VISIBLE);
-                return true;
-            case R.id.navigation_dashboard:
-                ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
-                listadoPerdidos.setVisibility(View.GONE);
-                return true;
-            case R.id.navigation_notifications:
-                ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.VISIBLE);
-                listadoPerdidos.setVisibility(View.GONE);
-                return true;
-        }
-            return false;
-        }
-    };
+    public BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.navigation_home:
+                        ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
+                        listadoPerdidos.setVisibility(View.VISIBLE);
+                        return true;
+                    case R.id.navigation_dashboard:
+                        ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
+                        listadoPerdidos.setVisibility(View.GONE);
+                        return true;
+                    case R.id.navigation_notifications:
+                        ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.VISIBLE);
+                        listadoPerdidos.setVisibility(View.GONE);
+                        return true;
+                }
+                return false;
+            }
+        };
 
     // Para obtener la imagen sea de galería o de cámara
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -589,23 +593,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         executor(null,null,null);
 
-        ArrayList<anuncio> manolo=new ArrayList<anuncio>();
-        manolo.add(new anuncio("Perro","Doberman","37.426667, -5.989268",2,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
-        manolo.add(new anuncio("Caballo","Pura sangre","37.428667, -5.979568",3,"https://cdn.pixabay.com/photo/2017/12/27/19/16/dog-3043416_960_720.jpg"));
-        manolo.add(new anuncio("Perro","Doberman","37.429667, -5.979468",8,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
-        manolo.add(new anuncio("Gato","Cachorro","37.426697, -5.979768",3,"https://fotos01.farodevigo.es/2018/01/10/328x206/cachorro.jpg"));
-        manolo.add(new anuncio("Perro","Doberman","37.426677, -5.979258",9,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
-        manolo.add(new anuncio("Tortuga","Mama huevo","37.425667, -5.975268",10,"https://mascotafiel.com/wp-content/uploads/2015/11/perros-Chihuahua_opt-compressor-1.jpg"));
-        manolo.add(new anuncio("Perro","Doberman","37.424667, -5.979248",3,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
-        manolo.add(new anuncio("Polimero","Que quieres","37.476667, -5.974268",1,"https://adiestramientocanino.org/wp-content/uploads/2017/03/perros-mas-cari%C3%B1osos.jpg"));
-        manolo.add(new anuncio("Perro","Doberman","37.425667, -5.977268",7,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
-        manolo.add(new anuncio("Mama huevo","Pesadill","37.496667, -5.978268",3,"https://elpais.com/elpais/imagenes/2015/02/16/buenavida/1424088878_811226_1424253980_noticia_fotograma.jpg"));
-        manolo.add(new anuncio("Perro","Doberman","37.426687, -5.974268",8,"https://adiestramientocanino.org/wp-content/uploads/2017/11/displasia-en-perros-640x410.jpg"));
-
-
-        setTitle(manolo.size()+"");
         listadoPerdidos.setLayoutManager(new GridLayoutManager(this, 1));
-        adaptadorEncontrados adap = new adaptadorEncontrados(new View(this),manolo);
+        adaptadorEncontrados adap = new adaptadorEncontrados(new View(this),listaAnimalInicioAnuncio);
         listadoPerdidos.setAdapter(adap);
 
         for (int x=0;x<listaBotonesSalud.size();x++){
@@ -626,7 +615,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             protected Vector<String> doInBackground(String... strings) {
 
                 Vector<String> a=new Vector<String>();
-                ConexionBD();
+                Connection con=ConexionBD();
+
+                if (strings[0].equals("select")){
+                    try {
+                        Statement st=con.createStatement();
+                        ResultSet rs=st.executeQuery(strings[1]);
+
+                        while (rs.next()==true){
+                            listaAnimalInicioAnuncio.add(new animal(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4),
+                                    rs.getString(5),rs.getString(6),rs.getString(7),
+                                    rs.getString(8),rs.getString(9),rs.getInt(10),rs.getInt(11)));
+                        }
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                if (strings[0].equals("insert")){
+
+                }
+
 
                 return a;
             }
@@ -666,22 +676,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 class animal{
 
-        String especie;
-        String raza;
-        String edad;
+        int id;
+        String size;
+        String fechaMaxima;
+        String fechaActual;
+        String coordenadas;
+        String urlImagen;
+        String viaContacto;
+        String textoContacto;
         String descripcion;
-        String salud;
-        String bitmap;
-        String siz;
+        int idRazaFK;
+        int idUsuarioFK;
 
-        public animal(String Aespecie,String Araza,String Asalud,String Aedad,String Adescripcion,String Asize,String Abitmap){
-            especie=Aespecie;
-            raza=Araza;
-            edad=Aedad;
-            descripcion=Adescripcion;
-            salud=Asalud;
-            bitmap=Abitmap;
-            siz=Asize;
+        public animal(int id,String size,String fechaMaxima,String fechaActual,String coordenadas,String urlImagen,String viaContacto,String textoContacto,String descripcion,int idRazaFK ,int idUsuarioFK ){
+            this.id=id;
+            this.size=size;
+            this.fechaMaxima=fechaMaxima;
+            this.fechaActual=fechaActual;
+            this.coordenadas=coordenadas;
+            this.urlImagen=urlImagen;
+            this.viaContacto=viaContacto;
+            this.textoContacto=textoContacto;
+            this.descripcion=descripcion;
+            this.idRazaFK=idRazaFK;
+            this.idUsuarioFK=idUsuarioFK;
+
+
         }
   }
 
