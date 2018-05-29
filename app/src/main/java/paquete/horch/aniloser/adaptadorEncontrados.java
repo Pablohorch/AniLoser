@@ -90,7 +90,6 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
                     @Override
                     public void run() {
                         String[] x=executor("",""+espe.get(position).idRazaFK,"");
-
                         holder.especie.setText(x[0]);
                         holder.raza.setText(x[1]);
                         holder.img.setImageBitmap(mapaBit);
@@ -150,7 +149,7 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
 
     @SuppressLint("StaticFieldLeak")
     public String[] executor(String lugar,String modo, String datos){
-        final String[] especieYRaza = {""};
+        final String[] especieYRaza = {"",""};
         new AsyncTask<String, String, Vector<String>>() {
             @Override
 
@@ -169,7 +168,13 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
                         ResultSet rs=st.executeQuery("select * from razas where idRaza="+strings[1]);
 
                         int idEspecie= rs.getInt(4);
+                        String raza=rs.getString(2);
 
+                        rs=st.executeQuery("select nombreEspecie from especie where idRazaFK="+idEspecie);
+
+                        String especie=rs.getString(1);
+                        especieYRaza[0]=especie;
+                        especieYRaza[1]=raza;
 
 
                     } catch (SQLException e) {
@@ -197,6 +202,7 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
             }
 
         }.execute(lugar,modo,datos);
+
         return especieYRaza;
     }
 

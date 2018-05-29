@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -74,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //-------------listado
     RecyclerView listadoRaza;
+    final Handler comunicadorConUI = new Handler();
+
 
     //----------- vvariable de la imagen----
     private static final int SELECT_FILE = 1;
@@ -107,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     RecyclerView listadoPerdidos;
     static ArrayList<Button> listaBotonesSalud = new ArrayList<Button>();
 
-    static ArrayList<animal> listaAnimalInicioAnuncio = new ArrayList<animal>();
+    ArrayList<animal> listaAnimalInicioAnuncio = new ArrayList<animal>();
 
 
     @Override
@@ -591,8 +594,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
  //----------------------------Listado inicial de aniamles que se han encontrado-----------------------------------
     public void ejecutorInicialPerdido(){
 
-        executor(null,null,null);
+        executor("select","select * from animal",null);
 
+        setTitle(listaAnimalInicioAnuncio.size()+"");
         listadoPerdidos.setLayoutManager(new GridLayoutManager(this, 1));
         adaptadorEncontrados adap = new adaptadorEncontrados(new View(this),listaAnimalInicioAnuncio);
         listadoPerdidos.setAdapter(adap);
@@ -620,12 +624,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (strings[0].equals("select")){
                     try {
                         Statement st=con.createStatement();
-                        ResultSet rs=st.executeQuery(strings[1]);
+                       final ResultSet rs=st.executeQuery(strings[1]);
+                        try {
+                            setTitle(listaAnimalInicioAnuncio.size()+"---");
 
-                        while (rs.next()==true){
                             listaAnimalInicioAnuncio.add(new animal(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4),
                                     rs.getString(5),rs.getString(6),rs.getString(7),
                                     rs.getString(8),rs.getString(9),rs.getInt(10),rs.getInt(11)));
+                        } catch (SQLException e) {
+
+                        }
+                        while (rs.next()==true){
+                            comunicadorConUI.post(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                }
+                            });
+
                         }
 
                     } catch (SQLException e) {
