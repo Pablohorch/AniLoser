@@ -46,14 +46,23 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Vector;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback, GoogleMap.OnMapLongClickListener,CalendarView.OnDateChangeListener {
@@ -442,6 +451,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (rdbRedes.isChecked())
             viaContact="Red Social";
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        Date date = new Date();
+
+        String especie=btnAddSeguimientoEspecie.getText().toString();
+        String raza=btnAddSeguimientoRaza.getText().toString();
+        String ubicacion=ubicacionSeleccionada.longitude+"-"+ubicacionSeleccionada.latitude;
+        String viaContacto=viaContact;
+        String contacto=txtContacto.getText().toString();
+        String fechaActual=dateFormat.format(date);
+        String fechaMaxima=fecha;
+        String grandor=spiSize.getSelectedItem().toString();
+        String salud=barradeSalud.getProgress()+"";
+        String urlImagen="";
+
+
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -685,6 +709,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }.execute(lugar,modo,datos);
     }
 
+//----------------------------FTP cojones------------------------------------
+    public BufferedReader descargarArchivo(String path) {
+        FileReader fr = null;
+        BufferedReader br = null;
+
+        try {
+            fr = new FileReader(path);
+            br = new BufferedReader(fr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return br;
+    }
+
+    //-------------------ERRRORRORORORORORORORORORORORORR*---------------------------
+    public void conectar() {
+        new Connection().execute();
+    }
+
+    public void cerrar() {
+        try {
+            cliente.logout();
+            cliente.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public boolean subirArchivo(String path, String nombre) {
+        FileInputStream fis = null;
+
+        // si el usuario esta conectado al servidor
+        if (cliente.isConnected()) {
+            try {
+                cliente.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
+                cliente.setFileTransferMode(FTP.BINARY_FILE_TYPE);
+                cliente.enterLocalPassiveMode();
+
+                fis = new FileInputStream(path);
+                cliente.storeFile(nombre, fis);
+                cerrar(); // cerrar sesion
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return false;
+    }
+
+//--------------------------------------------fin ftp --------------------------------
     public Connection ConexionBD(){
         Connection con=null;
         try {
@@ -696,6 +773,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         return con;
     }
+
+
+
 
 }
 
@@ -758,6 +838,22 @@ class anuncio{
         this.lugar=lugar;
         this.url=url;
         this.salud=salud;
+    }
+}
+
+private class Connection extends AsyncTask<Void, Void, Void> {
+    @Override
+    protected Void doInBackground(Void... voids) {
+        cliente = new FTPClient();
+
+        try {
+            // conectar al servidor
+            cliente.connect(servidor, 21);
+            cliente.login(usuario, pass);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
 
