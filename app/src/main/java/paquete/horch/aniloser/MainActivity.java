@@ -1,6 +1,7 @@
 package paquete.horch.aniloser;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,10 +13,12 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -60,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     static int width = 0; // ancho absoluto en pixels
     static int height = 0; // alto absoluto en pixels
+
+
+    Context contexto=this;
 
 
     Button btnAddSeguimientoEspecie;
@@ -437,16 +443,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             viaContact="Red Social";
 
 
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("¿Es la siguiente informacion correcta? \n " +
                 "Especie : "+btnAddSeguimientoEspecie.getText()+"\n " +
                 "Raza : "+btnAddSeguimientoRaza.getText()+"\n " +
-                "Ubicacion : "+btnAddSeguimientoEspecie.getText()+"\n " +
+                "Ubicacion : "+"\n longitud: "+ubicacionSeleccionada.longitude+"\n Latitud: "+ubicacionSeleccionada.latitude+"\n " +
                 "------------------Tu información---------------- \n" +
                 "Via de contacto : "+viaContact+"\n " +
                 "Contacto : "+txtContacto.getText().toString()+"\n " +
                 "Fecha maxima : "+fecha+"\n " +
-                "Tamaño : "+spiSize.getSelectedItem().toString()+"\n ")
+                "Tamaño : "+spiSize.getSelectedItem().toString()+"\n "+
+                "Nivel de Salud : "+barradeSalud.getProgress()+"\n ")
                 .setTitle("Cuidado")
                 .setCancelable(false)
                 .setNegativeButton("Cancelar",
@@ -587,19 +595,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fecha=dayOfMonth+"/"+month+"/"+year;
     }
 
-    public void aceptarEnviar(){
-
- }
 
  //----------------------------Listado inicial de aniamles que se han encontrado-----------------------------------
     public void ejecutorInicialPerdido(){
 
-        executor("select","select * from animal",null);
+        executor("select","select * from animales",null);
 
-        setTitle(listaAnimalInicioAnuncio.size()+"");
-        listadoPerdidos.setLayoutManager(new GridLayoutManager(this, 1));
-        adaptadorEncontrados adap = new adaptadorEncontrados(new View(this),listaAnimalInicioAnuncio);
-        listadoPerdidos.setAdapter(adap);
+
 
         for (int x=0;x<listaBotonesSalud.size();x++){
             listaBotonesSalud.get(x).setWidth(950);
@@ -624,23 +626,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (strings[0].equals("select")){
                     try {
                         Statement st=con.createStatement();
-                       final ResultSet rs=st.executeQuery(strings[1]);
-                        try {
-                            setTitle(listaAnimalInicioAnuncio.size()+"---");
+                        ResultSet rs=st.executeQuery(strings[1]);
+                        Log.e("While de mierda","NO ENTRA CREO JAJAJA");
 
-                            listaAnimalInicioAnuncio.add(new animal(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4),
-                                    rs.getString(5),rs.getString(6),rs.getString(7),
-                                    rs.getString(8),rs.getString(9),rs.getInt(10),rs.getInt(11)));
-                        } catch (SQLException e) {
+                        while (rs.next()){
+                            Log.e("While de mierda","Entra con toda seguridad");
 
-                        }
-                        while (rs.next()==true){
-                            comunicadorConUI.post(new Runnable() {
-                                @Override
-                                public void run() {
+                            try {
 
-                                }
-                            });
+                                listaAnimalInicioAnuncio.add(new animal(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4),
+                                        rs.getString(5),rs.getString(6),rs.getString(7),
+                                        rs.getString(8),rs.getString(9),rs.getInt(10),rs.getInt(11)));
+
+
+                                comunicadorConUI.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setTitle(listaAnimalInicioAnuncio.size()+"");
+                                        listadoPerdidos.setLayoutManager(new GridLayoutManager(contexto, 1));
+                                        adaptadorEncontrados adap = new adaptadorEncontrados(new View(contexto),listaAnimalInicioAnuncio);
+                                        listadoPerdidos.setAdapter(adap);
+                                    }
+                                });
+                            } catch (SQLException e) {
+
+                            }
 
                         }
 
@@ -679,7 +689,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Connection con=null;
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            con= DriverManager.getConnection("jdbc:mysql://sql2.freesqldatabase.com:3306/sql2233658", "sql2233658", "uK4*dD2%");
+            con= DriverManager.getConnection("jdbc:mysql://sql2.freesqldatabase.com:3306/sql2239597", "sql2239597", "dJ6%nG7!");
         } catch(Exception e) {
             e.printStackTrace();
 
