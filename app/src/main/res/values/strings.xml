@@ -9,5 +9,7 @@
     <string name="txtAdvAdd">En esta pantalla podras añadir un nuevo animal en cualquiero modo. Modo Busqueda (Ese animal se ha perdido) o modo Encontrado (Ese animal ha sido encontrado)</string>
     <string name="advertenciaFotografiaAdd">Selecionar la opciones para poder escoger una fotografia del animal</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_animal_perdido">animalPerdido</string>
+    <string name="pedidoAnimal">Ver Contacto</string>
 
 </resources>

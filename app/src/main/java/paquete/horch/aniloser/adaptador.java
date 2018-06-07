@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedOutputStream;
@@ -61,16 +63,27 @@ public class adaptador extends RecyclerView.Adapter<adaptador.ViewHolder> implem
               comunicador.post(new Runnable() {
                   @Override
                   public void run() {
-                    holder.img.setImageBitmap(mapaBit);
+                      holder.img.setImageBitmap(mapaBit);
                   }
               });
 
             }
         }.start();
 
-
     }
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        TextView cliente;
+        ImageView img;
+
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            img = (ImageView) itemView.findViewById(R.id.imgAddRaza);
+            cliente = (TextView) itemView.findViewById(R.id.txtAddRaza);
+        }
+    }
     @Override
     public int getItemCount() {
         return espe.size();
@@ -86,26 +99,6 @@ public class adaptador extends RecyclerView.Adapter<adaptador.ViewHolder> implem
             listener.onClick(v);
         }
     }
-
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-
-        TextView cliente;
-        ImageView img;
-
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-
-            img = (ImageView) itemView.findViewById(R.id.imgAddRaza);
-            cliente = (TextView) itemView.findViewById(R.id.txtAddRaza);
-
-
-
-
-        }
-    }
-
 
     private static OnItemClickListener onItemClickListener;
 
@@ -128,5 +121,32 @@ public class adaptador extends RecyclerView.Adapter<adaptador.ViewHolder> implem
             // Log exception
             return null;
         }
+    }
+    //-------------------------------------bitmap string
+
+    public Bitmap StringToBitMap(String encodedString){
+        try {
+            byte [] encodeByte=Base64.decode(encodedString, Base64.DEFAULT);
+            Bitmap bitmap=BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch(Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
+
+
+
+//------------------------------------------------------
+
+    public String BitMapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+
+        byte [] b=baos.toByteArray();
+        String temp=Base64.encodeToString(b, Base64.DEFAULT);
+
+        return temp;
     }
 }

@@ -14,17 +14,20 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.common.data.ObjectExclusionFilterable;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -35,6 +38,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedOutputStream;
@@ -84,17 +88,27 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
             @Override
             public void run() {
                 super.run();
+                Bitmap mapaBitOpcional=null;
+                if (MainActivity.modoBD)
+                    mapaBitOpcional =StringToBitMap(espe.get(i).urlImagen);
+                else
+                    mapaBitOpcional=getBitmapFromURL(espe.get(i).urlImagen);
 
-                final Bitmap mapaBit =getBitmapFromURL(espe.get(i).urlImagen);
+                final Bitmap mapaBit=mapaBitOpcional;
+
                 comunicador.post(new Runnable() {
                     @Override
                     public void run() {
-                        String[] x=executor("",""+espe.get(position).idRazaFK,"");
-                        holder.especie.setText(x[0]);
-                        holder.raza.setText(x[1]);
+                        Vector<TextView> elementosGraficos=new Vector<TextView>();
+                        elementosGraficos.add(holder.especie);
+                        elementosGraficos.add(holder.raza);
+
+                        String[] x=executor("",""+espe.get(position).idRazaFK,"",elementosGraficos);
                         holder.img.setImageBitmap(mapaBit);
                     }
                 });
+
+
 
             }
         }.start();
@@ -148,7 +162,7 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
     }
 
     @SuppressLint("StaticFieldLeak")
-    public String[] executor(String lugar,String modo, String datos){
+    public String[] executor(String lugar, String modo, String datos, final Vector<TextView> elementos){
         final String[] especieYRaza = {"",""};
         new AsyncTask<String, String, Vector<String>>() {
             @Override
@@ -166,22 +180,28 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
                     try {
                         Statement st=con.createStatement();
                         ResultSet rs=st.executeQuery("select * from razas where idRaza="+strings[1]);
+                        rs.first();
+                        String idEspecie= rs.getString(4);
 
-                        int idEspecie= rs.getInt(4);
-                        String raza=rs.getString(2);
+                        final String raza=rs.getString(2);
 
-                        rs=st.executeQuery("select nombreEspecie from especie where idRazaFK="+idEspecie);
+                        rs=st.executeQuery("select nombreEspecie from especies where idEspecie="+idEspecie);
+                        rs.first();
+                        final String especie=rs.getString(1);
 
-                        String especie=rs.getString(1);
-                        especieYRaza[0]=especie;
-                        especieYRaza[1]=raza;
+                        comunicador.post(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                 elementos.get(0).setText(especie);
+                                 elementos.get(1).setText(raza);
+                            }
+                        });
 
 
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-
-
 
                 return a;
             }
@@ -203,6 +223,8 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
 
         }.execute(lugar,modo,datos);
 
+        Log.e("Resultado base de datos"," resultado: "+especieYRaza[0]+"-"+especieYRaza[1]);
+
         return especieYRaza;
     }
 
@@ -210,7 +232,7 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
         Connection con=null;
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            con= DriverManager.getConnection("jdbc:mysql://sql2.freesqldatabase.com:3306/sql2233658", "sql2233658", "uK4*dD2%");
+            con= DriverManager.getConnection("jdbc:mysql://sql2.freesqldatabase.com:3306/sql2239597", "sql2239597", "dJ6%nG7!");
         } catch(Exception e) {
             e.printStackTrace();
 
@@ -232,5 +254,33 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
             // Log exception
             return null;
         }
+    }
+
+    //-------------------------------------bitmap string
+
+    public Bitmap StringToBitMap(String encodedString){
+        try {
+            byte [] encodeByte=Base64.decode(encodedString, Base64.DEFAULT);
+            Bitmap bitmap=BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch(Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
+
+
+
+//------------------------------------------------------
+
+    public String BitMapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+
+        byte [] b=baos.toByteArray();
+        String temp=Base64.encodeToString(b, Base64.DEFAULT);
+
+        return temp;
     }
 }
