@@ -296,6 +296,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case R.id.navigation_dashboard:
                     ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
                     listadoPerdidos.setVisibility(View.GONE);
+
+
                     return true;
                 case R.id.navigation_notifications:
                     ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.VISIBLE);
@@ -520,7 +522,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                     executor("insert","insert into animales(size,fechaMaxima,fechaActual,coordenadas,urlImagen,viaContacto,textoContacto,descripcion,salud,idRazaFK,idUsuarioFK) " +
                                             "values " +
-                                            "('"+grandor+"','"+fechaMaxima+"','"+fechaActual+"','"+ubicacionSeleccionada.longitude+"-"+ubicacionSeleccionada.latitude +"'," +
+                                            "('"+grandor+"','"+fechaMaxima+"','"+fechaActual+"','"+ubicacionSeleccionada.longitude+","+ubicacionSeleccionada.latitude +"'," +
                                                     "'"+BitMapToString(mapaBit)+"','"+viaContacto+"','"+contacto+"','"+descripcion+"',"+salud+",22,1)"
                                             ,"");
                                 }
@@ -532,8 +534,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                         String nombreArchivoParaSubir="fotoReguistrolistaFTP.jpg";
                                         MyFTPClientFunctions ftpclient = new MyFTPClientFunctions();
-
-
 
                                         Boolean status = ftpclient.ftpConnect("files.000webhost.com",
                                                 "pablohorchftpapp", "poliesterFTPDeLenovo", 21);
@@ -732,17 +732,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     public void run() {
                                         setTitle(listaAnimalInicioAnuncio.size()+"");
                                         listadoPerdidos.setLayoutManager(new GridLayoutManager(contexto, 1));
-                                        adaptadorEncontrados adap = new adaptadorEncontrados(new View(contexto),listaAnimalInicioAnuncio);
+                                        adaptadorEncontrados adap = new adaptadorEncontrados(new View(contexto),listaAnimalInicioAnuncio,contexto);
                                         listadoPerdidos.setAdapter(adap);
 
                                         adap.setOnItemClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
                                                 Log.e("Estoy clicando cabron","Hijo puta-"+listadoPerdidos.getChildAdapterPosition(v));
-
-                                                Intent intent = new Intent(contexto, animalPerdido.class);
-                                                startActivity(intent);
-
 
                                             }
                                         });
@@ -813,9 +809,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return null;
         }
     }
-
-
-
+    
 //------------------------------------------------------
 
     public String BitMapToString(Bitmap bitmap){

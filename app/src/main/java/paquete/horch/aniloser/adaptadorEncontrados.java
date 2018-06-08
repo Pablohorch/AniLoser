@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
@@ -52,6 +53,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import static android.content.Intent.ACTION_VIEW;
+
 
 public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontrados.ViewHolder> implements View.OnClickListener{
 
@@ -64,9 +67,9 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
 
 
 
-    public adaptadorEncontrados( View view,ArrayList<animal> anuncio){
+    public adaptadorEncontrados( View view,ArrayList<animal> anuncio,Context context){
 
-        this.context = null;
+        this.context = context;
         this.espe = anuncio;
     }
 
@@ -76,8 +79,6 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
         v.setOnClickListener(this);
         return new ViewHolder(v);
     }
-
-
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
@@ -102,22 +103,59 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
                         Vector<TextView> elementosGraficos=new Vector<TextView>();
                         elementosGraficos.add(holder.especie);
                         elementosGraficos.add(holder.raza);
+                        elementosGraficos.add(holder.fecha);
+                        elementosGraficos.add(holder.size);
+                        elementosGraficos.add(holder.contacto);
+                        elementosGraficos.add(holder.descripcion);
 
-                        String[] x=executor("",""+espe.get(position).idRazaFK,"",elementosGraficos);
+
+                        String[] x=executor("",""+espe.get(position).id,"",elementosGraficos,holder.Mapas);
                         holder.img.setImageBitmap(mapaBit);
                     }
                 });
-
-
-
             }
         }.start();
-
     }
     @Override
     public int getItemCount() {
         return espe.size();
     }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        TextView especie;
+        ImageView img;
+        TextView raza;
+        CardView tarjeta;
+        ProgressBar saludNivel;
+
+        TextView contacto;
+        TextView descripcion;
+        TextView size;
+        TextView fecha;
+
+        Button Mapas;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            img = (ImageView) itemView.findViewById(R.id.imgPerdidaRaza);
+            especie = (TextView) itemView.findViewById(R.id.txtPerdidaEspecie);
+            raza = (TextView) itemView.findViewById(R.id.txtPerdidaRaza);
+            tarjeta=(CardView) itemView.findViewById(R.id.card);
+            saludNivel=(ProgressBar) itemView.findViewById(R.id.saludNivel);
+
+            contacto=(TextView) itemView.findViewById(R.id.lblCOntactoLista);
+            descripcion=(TextView) itemView.findViewById(R.id.lblDescripcionLista);
+            size=(TextView) itemView.findViewById(R.id.lblSizeLista);
+            fecha=(TextView) itemView.findViewById(R.id.lblFechaLista);
+            Mapas=(Button) itemView.findViewById(R.id.btnUbicacionLista);
+
+        }
+
+    }
+
+    private static OnItemClickListener onItemClickListener;
 
     public void setOnItemClickListener(View.OnClickListener listener){
         this.listener=listener;
@@ -130,39 +168,12 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
         }
     }
 
-
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-
-        TextView especie;
-        ImageView img;
-        TextView raza;
-        CardView tarjeta;
-        ProgressBar saludNivel;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-
-            img = (ImageView) itemView.findViewById(R.id.imgPerdidaRaza);
-            especie = (TextView) itemView.findViewById(R.id.txtPerdidaEspecie);
-            raza = (TextView) itemView.findViewById(R.id.txtPerdidaRaza);
-            tarjeta=(CardView) itemView.findViewById(R.id.card);
-            saludNivel=(ProgressBar) itemView.findViewById(R.id.saludNivel);
-
-        }
-
-    }
-
-
-    private static OnItemClickListener onItemClickListener;
-
-
     public static interface OnItemClickListener {
         public void onItemClick(View view, int position);
     }
 
     @SuppressLint("StaticFieldLeak")
-    public String[] executor(String lugar, String modo, String datos, final Vector<TextView> elementos){
+    public String[] executor(String lugar, String modo, String datos, final Vector<TextView> elementos,final Button btnMapas){
         final String[] especieYRaza = {"",""};
         new AsyncTask<String, String, Vector<String>>() {
             @Override
@@ -179,7 +190,23 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
 
                     try {
                         Statement st=con.createStatement();
-                        ResultSet rs=st.executeQuery("select * from razas where idRaza="+strings[1]);
+
+                        ResultSet rs=st.executeQuery("select * from animales where idAnimal="+strings[1]);
+                        rs.first();
+
+                        final String contacto=rs.getString(8);
+                        final String size=rs.getString(2);
+                        final String descripcion=rs.getString(9);
+                        final String fecha=rs.getString(3);
+
+                        String[] coordenadas=rs.getString(5).split(",");
+
+                        final String longitud=coordenadas[1];
+                        final String latitud=coordenadas[0];
+
+
+
+                        rs=st.executeQuery("select * from razas where idRaza="+rs.getString(11));
                         rs.first();
                         String idEspecie= rs.getString(4);
 
@@ -189,14 +216,35 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
                         rs.first();
                         final String especie=rs.getString(1);
 
+//--------------------------------------------------------------------------------------------------------------
+
                         comunicador.post(new Runnable() {
                             @Override
                             public void run() {
 
                                  elementos.get(0).setText(especie);
                                  elementos.get(1).setText(raza);
+                                 elementos.get(2).setText("Fecha Maxima:"+fecha);
+                                elementos.get(3).setText("Tamaño:"+size);
+                                elementos.get(4).setText("Contacto :"+contacto);
+                                elementos.get(5).setText("Descripcion : \n"+descripcion);
+
+                                btnMapas.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+
+
+                                        // Creates an Intent that will load a map of San Francisco
+                                        Log.e("Ubicaciones",longitud+"-----"+latitud);
+                               Uri intentUri = Uri.parse("geo:"+longitud+","+latitud+"?z=16&q="+longitud+","+latitud+"(Aqui esta el perro)");
+                                Intent intent = new Intent(Intent.ACTION_VIEW, intentUri);
+                                context.startActivity(intent);
+                                    }
+                                });
+
                             }
                         });
+//--------------------------------------------------------------------------------------------------------------
 
 
                     } catch (SQLException e) {

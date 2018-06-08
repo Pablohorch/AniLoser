@@ -40,7 +40,7 @@ public class adaptador extends RecyclerView.Adapter<adaptador.ViewHolder> implem
         this.espe = especie;
 
     }
-
+///----------------------------ARRIba explicar lo de la especies el objecto --------------------------------
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.tarjetaslistado,parent,false);
