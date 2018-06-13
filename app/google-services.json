@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "152355222452",
+    "firebase_url": "https://animalesperdidos-74f21.firebaseio.com",
+    "project_id": "animalesperdidos-74f21",
+    "storage_bucket": "animalesperdidos-74f21.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152355222452:android:14ab601c0eb5a6bd",
+        "android_client_info": {
+          "package_name": "paquete.horch.aniloser"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "152355222452-7bnecfafqaqj6fdb1isanknjr4ib2qeo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "paquete.horch.aniloser",
+            "certificate_hash": "2628e8c7857f896207513b90e0c527d20344b0da"
+          }
+        },
+        {
+          "client_id": "152355222452-25bmmvct036mjf96dl2k0sl48e6d68tg.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "152355222452-25bmmvct036mjf96dl2k0sl48e6d68tg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLfvRmJB0XSQFzdgHltvumLmhzVNo-9u4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "152355222452-25bmmvct036mjf96dl2k0sl48e6d68tg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

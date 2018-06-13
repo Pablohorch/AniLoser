@@ -18,6 +18,16 @@
 
     </android.support.v7.widget.RecyclerView>
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/listadoAnimalesPropios"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
+
+    </android.support.v7.widget.RecyclerView>
+
     <LinearLayout
         android:id="@+id/RegistroAnimal"
         android:layout_width="match_parent"

@@ -14,7 +14,6 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,6 +39,15 @@ import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -55,6 +63,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -69,7 +78,22 @@ import java.util.Vector;
 import static android.content.ContentValues.TAG;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback, GoogleMap.OnMapLongClickListener,CalendarView.OnDateChangeListener {
+        OnMapReadyCallback, GoogleMap.OnMapLongClickListener,CalendarView.OnDateChangeListener, GoogleApiClient.OnConnectionFailedListener{
+
+    //Google
+
+    View cabecera;
+
+    public static String nombreGoogle;
+    public static String urlFotoGoogle;
+    public static String idGoogle;
+    public static String correoGoogle;
+
+
+
+    private GoogleApiClient clienteGoogle;
+
+    public static final int SIGN_IN_CODE = 777;
 
     //-----------ftp
 
@@ -98,10 +122,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //-------------listado
     RecyclerView listadoRaza;
+    RecyclerView listadoPropio;
     final Handler comunicadorConUI = new Handler();
 
+    String razaNombre="";
 
-    //----------- vvariable de la imagen----
+
+    //-----------variable de la imagen----
     private static final int SELECT_FILE = 1;
     Bitmap image = null;
     static int code = 0;
@@ -229,7 +256,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //-----------------------------------------------------------------------------------------
         listadoPerdidos = (RecyclerView) findViewById(R.id.listadoAnimalesPerdidos);
-        ejecutorInicialPerdido();
+        inicicioDeSesionConGoogle();
+
+    }
+
+    private void inicicioDeSesionConGoogle() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ejecutorInicialPerdido();
+
+            }
+        }).start();
+
+        NavigationView navigationView=(NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        cabecera = navigationView.getHeaderView(0);
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        clienteGoogle = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+
+        Intent intent=Auth.GoogleSignInApi.getSignInIntent(clienteGoogle);
+        startActivityForResult(intent,SIGN_IN_CODE);
     }
 
     @Override
@@ -296,8 +352,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case R.id.navigation_dashboard:
                     ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
                     listadoPerdidos.setVisibility(View.GONE);
-
-
                     return true;
                 case R.id.navigation_notifications:
                     ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.VISIBLE);
@@ -312,6 +366,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Bitmap image = null;
 
+        if (requestCode==SIGN_IN_CODE){
+            GoogleSignInResult resultado =Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleSingINResult(resultado,false);
+        }
+
         //Concidiones desabilitadas
         if (requestCode == DESDE_CAMARA) {
             if (requestCode == DESDE_CAMARA && resultCode == RESULT_OK && data != null) {
@@ -323,7 +382,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Uri rutaImagen = data.getData();
                 try {
                     image = BitmapFactory.decodeStream(new BufferedInputStream(getContentResolver().openInputStream(rutaImagen)));
-                } catch (FileNotFoundException e) {Log.e("Desde_Gareia","Error de Galeria de archivo no found");}
+                } catch (FileNotFoundException e) {}
             }
         }
 
@@ -336,7 +395,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             File imgFile = new File(contexto.getFilesDir(),"guardadoTemporalBitMapRegistro.jpg");
             if(imgFile.exists()) {
-                Log.e(TAG, "Existe la foto");
                mapaDeBitJPG=BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                }
             ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(mapaDeBitJPG);
@@ -380,6 +438,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     listaAdd.setVisibility(View.GONE);
                     btnAddSeguimientoRaza.setText(nombre);
                     btnAddSeguimientoRaza.setEnabled(true);
+
+                    executor("selectraza","select idRaza from razas where nombreRaza='"+nombre+"'","");
+
                     ((ScrollView) findViewById(R.id.scrollAddImagen)).setVisibility(View.VISIBLE);
                 }
             }
@@ -520,11 +581,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                 if (modoBD){
 
+                                    if (razaNombre.length()>0)
                                     executor("insert","insert into animales(size,fechaMaxima,fechaActual,coordenadas,urlImagen,viaContacto,textoContacto,descripcion,salud,idRazaFK,idUsuarioFK) " +
                                             "values " +
                                             "('"+grandor+"','"+fechaMaxima+"','"+fechaActual+"','"+ubicacionSeleccionada.longitude+","+ubicacionSeleccionada.latitude +"'," +
-                                                    "'"+BitMapToString(mapaBit)+"','"+viaContacto+"','"+contacto+"','"+descripcion+"',"+salud+",22,1)"
+                                                    "'"+BitMapToString(mapaBit)+"','"+viaContacto+"','"+contacto+"','"+descripcion+"',"+salud+"" +
+                                                    ","+razaNombre+",'"+idGoogle+"')"
                                             ,"");
+                                    else
+                                        setTitle("la hemos liado");
                                 }
                                 else{
 
@@ -538,27 +603,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Boolean status = ftpclient.ftpConnect("files.000webhost.com",
                                                 "pablohorchftpapp", "poliesterFTPDeLenovo", 21);
                                         if (status == true && new File(contexto.getFilesDir(),nombreArchivoParaSubir).exists()) {
-                                            Log.e("FTP------", "Connection Success");
-
-
-
-
                                             Boolean staatus=ftpclient.ftpUpload("fotoReguistrolistaFTP.jpg","prueba.jpg","/imagenesAnimales",contexto);
-                                            if (staatus)
-                                                Log.e(TAG, "Ueeeee");
-                                            else
-                                                Log.e(TAG, "ErrorSubida");
+                                            } else {
 
-                                        } else {
-                                            Log.e("FTP-------", "Connection failed-No existe el archivo");
                                         }
                                         ftpclient.ftpDisconnect();
                                     }
                                 }).start();}
+                                reinicioEspecie();
                             }
                         });
         AlertDialog alert = builder.create();
         alert.show();
+
     }
 
     //---------------Reinicio-----------------------------
@@ -683,13 +740,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fecha=dayOfMonth+"/"+month+"/"+year;
     }
 
-
     //----------------------------Listado inicial de aniamles que se han encontrado-----------------------------------
     public void ejecutorInicialPerdido(){
 
         executor("select","select * from animales",null);
-
-
 
         for (int x=0;x<listaBotonesSalud.size();x++){
             listaBotonesSalud.get(x).setWidth(950);
@@ -706,31 +760,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             @Override
-            protected Vector<String> doInBackground(String... strings) {
+            protected Vector<String> doInBackground(final String... strings) {
 
                 Vector<String> a=new Vector<String>();
                 Connection con=ConexionBD();
+
+                if (strings[0].equals("selectraza")){
+                    try {
+                        Statement st=con.createStatement();
+                        ResultSet rs=st.executeQuery(strings[1]);
+
+                        rs.first();
+
+                        razaNombre=rs.getString(1);
+
+                    }catch (SQLException e){
+                        Log.e("SQL Exception","Error raza :"+e.getMessage());
+                    }
+                }
 
                 if (strings[0].equals("select")){
                     try {
                         Statement st=con.createStatement();
                         ResultSet rs=st.executeQuery(strings[1]);
-                        Log.e("While de mierda","NO ENTRA CREO JAJAJA");
 
                         while (rs.next()){
-                            Log.e("While de mierda","Entra con toda seguridad");
 
                             try {
+                                Log.e("Select","Entra en metodo select");
 
                                 listaAnimalInicioAnuncio.add(new animal(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4),
                                         rs.getString(5),rs.getString(6),rs.getString(7),
-                                        rs.getString(8),rs.getString(9),rs.getInt(10),rs.getInt(11),rs.getInt(12)));
+                                        rs.getString(8),rs.getString(9),rs.getInt(10),rs.getInt(11),rs.getString(12)));
 
 
                                 comunicadorConUI.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        setTitle(listaAnimalInicioAnuncio.size()+"");
+
+
                                         listadoPerdidos.setLayoutManager(new GridLayoutManager(contexto, 1));
                                         adaptadorEncontrados adap = new adaptadorEncontrados(new View(contexto),listaAnimalInicioAnuncio,contexto);
                                         listadoPerdidos.setAdapter(adap);
@@ -738,13 +806,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         adap.setOnItemClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                Log.e("Estoy clicando cabron","Hijo puta-"+listadoPerdidos.getChildAdapterPosition(v));
 
                                             }
                                         });
                                     }
                                 });
                             } catch (SQLException e) {
+                                Log.e("Select","Entra en metodo select"+e.getMessage());
 
                             }
 
@@ -759,6 +827,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     try {
                         Statement st=con.createStatement();
                         st.executeUpdate(strings[1]);
+
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -822,6 +891,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return temp;
     }
+
+    //----------------------Google
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        OptionalPendingResult<GoogleSignInResult> opr =Auth.GoogleSignInApi.silentSignIn(clienteGoogle);
+        if (opr.isDone()){
+            GoogleSignInResult result=opr.get();
+            handleSingINResult(result,true);
+        }
+    }
+
+    private void handleSingINResult(GoogleSignInResult resultado,Boolean silecioso) {
+        if (resultado.isSuccess()){
+            GoogleSignInAccount account=resultado.getSignInAccount();
+            setTitle(account.getDisplayName());
+
+            idGoogle=account.getId();
+            nombreGoogle=account.getDisplayName();
+            correoGoogle=account.getEmail();
+            urlFotoGoogle=account.getPhotoUrl().toString();
+
+            if (!silecioso)
+            executor("insert","insert into usuarios(nickUsuario,correoElectronico,codeGoogle,urlFotoPerfil) values ('"+nombreGoogle+"','"+correoGoogle+"','"+idGoogle+"','"+urlFotoGoogle+"')","");
+
+
+            Glide.with(this)
+                    .load(account.getPhotoUrl().toString())
+                    .into(((ImageView) cabecera.findViewById(R.id.imageView)));
+
+
+        }else{
+
+        }
+    }
+
 }
 
 
@@ -838,9 +950,9 @@ class animal{
     String descripcion;
     int salud;
     int idRazaFK;
-    int idUsuarioFK;
+    String idUsuarioFK;
 
-    public animal(int id,String size,String fechaMaxima,String fechaActual,String coordenadas,String urlImagen,String viaContacto,String textoContacto,String descripcion,int salud,int idRazaFK ,int idUsuarioFK ){
+    public animal(int id,String size,String fechaMaxima,String fechaActual,String coordenadas,String urlImagen,String viaContacto,String textoContacto,String descripcion,int salud,int idRazaFK ,String idUsuarioFK ){
         this.id=id;
         this.size=size;
         this.fechaMaxima=fechaMaxima;

@@ -157,20 +157,20 @@ public class adaptadorEncontrados extends RecyclerView.Adapter<adaptadorEncontra
 
     private static OnItemClickListener onItemClickListener;
 
-    public void setOnItemClickListener(View.OnClickListener listener){
-        this.listener=listener;
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (listener!=null){
-            listener.onClick(v);
+        public void setOnItemClickListener(View.OnClickListener listener){
+            this.listener=listener;
         }
-    }
 
-    public static interface OnItemClickListener {
-        public void onItemClick(View view, int position);
-    }
+        @Override
+        public void onClick(View v) {
+            if (listener!=null){
+                listener.onClick(v);
+            }
+        }
+
+        public static interface OnItemClickListener {
+            public void onItemClick(View view, int position);
+        }
 
     @SuppressLint("StaticFieldLeak")
     public String[] executor(String lugar, String modo, String datos, final Vector<TextView> elementos,final Button btnMapas){
