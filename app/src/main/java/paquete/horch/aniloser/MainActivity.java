@@ -194,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void inicializador() {
 
+        listadoPropio=(RecyclerView) findViewById(R.id.listadoAnimalesPropios);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -257,17 +258,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //-----------------------------------------------------------------------------------------
         listadoPerdidos = (RecyclerView) findViewById(R.id.listadoAnimalesPerdidos);
         inicicioDeSesionConGoogle();
+        ejecutorInicialPerdido(false);
 
     }
 
     private void inicicioDeSesionConGoogle() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ejecutorInicialPerdido();
 
-            }
-        }).start();
+
+
 
         NavigationView navigationView=(NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -348,14 +346,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case R.id.navigation_home:
                     ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
                     listadoPerdidos.setVisibility(View.VISIBLE);
+                    listadoPropio.setVisibility(View.GONE);
+                    ejecutorInicialPerdido(false);
                     return true;
                 case R.id.navigation_dashboard:
                     ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.GONE);
                     listadoPerdidos.setVisibility(View.GONE);
+                    listadoPropio.setVisibility(View.VISIBLE);
+                    ejecutorInicialPerdido(true);
                     return true;
                 case R.id.navigation_notifications:
                     ((LinearLayout) findViewById(R.id.RegistroAnimal)).setVisibility(View.VISIBLE);
                     listadoPerdidos.setVisibility(View.GONE);
+                    listadoPropio.setVisibility(View.GONE);
                     return true;
             }
             return false;
@@ -382,22 +385,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Uri rutaImagen = data.getData();
                 try {
                     image = BitmapFactory.decodeStream(new BufferedInputStream(getContentResolver().openInputStream(rutaImagen)));
-                } catch (FileNotFoundException e) {}
+                } catch (FileNotFoundException e) {
+                    e.getMessage();
+                }
             }
         }
 
         if (image!=null) {
+            ImageView imagen=((ImageView) findViewById(R.id.ImgAnimalAdd));
+
             Bitmap mapaDeBitJPG=null;
+            mapaDeBitJPG=image;
             btnAddImgCancelar.setEnabled(true);
             btnAddImgAceptar.setEnabled(true);
-            Save guardado=new Save();
-            guardado.SaveImage(contexto,image,"guardadoTemporalBitMapRegistro");
 
-            File imgFile = new File(contexto.getFilesDir(),"guardadoTemporalBitMapRegistro.jpg");
-            if(imgFile.exists()) {
-               mapaDeBitJPG=BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-               }
-            ((ImageView) findViewById(R.id.ImgAnimalAdd)).setImageBitmap(mapaDeBitJPG);
+            imagen.setImageBitmap(mapaDeBitJPG);
+            imagen.buildDrawingCache();
+            if (imagen.getDrawingCache()==null)
+                setTitle("Foto no valida");
+
 
         }
 
@@ -473,8 +479,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ((ScrollView) findViewById(R.id.scrollAddImagen)).setVisibility(View.GONE);
         ((ScrollView) findViewById(R.id.scrollAddUbicacion)).setVisibility(View.VISIBLE);
         btnAddSeguimientoFoto.setEnabled(true);
-        Save guardado=new Save();
-        guardado.SaveImage(this,imagen,nombreImagen);
+
 
 
 
@@ -538,8 +543,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         Date date = new Date();
-
-        final Bitmap mapaBit=((ImageView) findViewById(R.id.ImgAnimalAdd)).getDrawingCache();
+        ImageView imagen=((ImageView) findViewById(R.id.ImgAnimalAdd));
+        imagen.buildDrawingCache();
+        final Bitmap mapaBit=imagen.getDrawingCache();
 
         String especie=btnAddSeguimientoEspecie.getText().toString();
         String raza=btnAddSeguimientoRaza.getText().toString();
@@ -741,17 +747,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     //----------------------------Listado inicial de aniamles que se han encontrado-----------------------------------
-    public void ejecutorInicialPerdido(){
+    public void ejecutorInicialPerdido(boolean propios){
+        if (propios)
+            executor("select","select * from animales where idUsuarioFK="+idGoogle,"propio");
+        else
+            executor("select","select * from animales ",null);
 
-        executor("select","select * from animales",null);
-
-        for (int x=0;x<listaBotonesSalud.size();x++){
-            listaBotonesSalud.get(x).setWidth(950);
-        }
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void executor(String lugar,String modo, String datos){
+    public void executor(String lugar,String modo,final String datos){
         new AsyncTask<String, String, Vector<String>>() {
             @Override
 
@@ -784,6 +789,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Statement st=con.createStatement();
                         ResultSet rs=st.executeQuery(strings[1]);
 
+                        listaAnimalInicioAnuncio.clear();
+                        listaAnimalInicioAnuncio.removeAll(null);
                         while (rs.next()){
 
                             try {
@@ -798,17 +805,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     @Override
                                     public void run() {
 
+                                        if (datos==null) {
+                                            listadoPerdidos.setLayoutManager(new GridLayoutManager(contexto, 1));
+                                            adaptadorEncontrados adap=new adaptadorEncontrados(new View(contexto), listaAnimalInicioAnuncio, contexto);
+                                            listadoPerdidos.setAdapter(adap);
 
-                                        listadoPerdidos.setLayoutManager(new GridLayoutManager(contexto, 1));
-                                        adaptadorEncontrados adap = new adaptadorEncontrados(new View(contexto),listaAnimalInicioAnuncio,contexto);
-                                        listadoPerdidos.setAdapter(adap);
+                                            adap.setOnItemClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
 
-                                        adap.setOnItemClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
+                                                }
+                                            });
+                                        }else{
+                                            listadoPropio.setLayoutManager(new GridLayoutManager(contexto, 1));
+                                            adaptadorEncontrados adap=new adaptadorEncontrados(new View(contexto), listaAnimalInicioAnuncio, contexto);
+                                            listadoPropio.setAdapter(adap);
 
-                                            }
-                                        });
+                                            adap.setOnItemClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+
+                                                }
+                                            });
+                                        }
                                     }
                                 });
                             } catch (SQLException e) {
@@ -884,7 +903,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public String BitMapToString(Bitmap bitmap){
         ByteArrayOutputStream baos=new ByteArrayOutputStream();
 
-        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        bitmap.compress(Bitmap.CompressFormat.JPEG,90, baos);
 
         byte [] b=baos.toByteArray();
         String temp=Base64.encodeToString(b, Base64.DEFAULT);
